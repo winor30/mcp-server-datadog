@@ -1,5 +1,7 @@
 import { Tool } from '@modelcontextprotocol/sdk/types.js'
 import { ZodSchema } from 'zod'
+import { log } from './helper'
+import zodToJsonSchema from 'zod-to-json-schema'
 
 type JsonSchema = Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -11,8 +13,11 @@ function pickRootObjectProperty(
   properties: any // eslint-disable-line @typescript-eslint/no-explicit-any
   required?: string[]
 } {
+  log('info', 'FULL SCHEMA', JSON.stringify(fullSchema, null, 2))
   const definitions = fullSchema.definitions ?? {}
+  log('info', 'DEFINITIONS', JSON.stringify(definitions, null, 2))
   const root = definitions[schemaName]
+  log('info', 'ROOT', JSON.stringify(root, null, 2))
   return {
     type: 'object',
     properties: root?.properties ?? {},
@@ -42,6 +47,9 @@ export function createToolSchema<T extends string>(
   return {
     name,
     description,
-    inputSchema: pickRootObjectProperty(schema, name),
+    inputSchema: pickRootObjectProperty(
+      zodToJsonSchema(schema, { name }),
+      name,
+    ),
   }
 }
