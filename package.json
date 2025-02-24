@@ -25,7 +25,7 @@
   "scripts": {
     "build": "tsup &&  node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
-    "watch": "tsc --watch",
+    "watch": "tsup --watch",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "eslint . --ext .ts,.js",
     "format": "prettier --write ."

@@ -1,76 +1,129 @@
 # Datadog MCP Server
 
-MCP server for interacting with Datadog API
-
-This is a TypeScript-based MCP server that implements a simple notes system. It demonstrates core MCP concepts by providing:
-
-- Resources representing text notes with URIs and metadata
-- Tools for creating new notes
-- Prompts for generating summaries of notes
+MCP server for the Datadog API, enabling incident management and more.
 
 ## Features
 
-### Resources
+- **Incident Management**: Enable listing and retrieving Datadog incidents through dedicated tools.
+- **Extensible Design**: Intended for future integrations with additional Datadog APIs.
 
-- List and access notes via `note://` URIs
-- Each note has a title, content and metadata
-- Plain text mime type for simple content access
+## Tools
 
-### Tools
+1. `list_incidents`
 
-- `create_note` - Create new text notes
-  - Takes title and content as required parameters
-  - Stores note in server state
+   - Retrieve a list of incidents from Datadog.
+   - **Inputs**:
+     - `filter` (optional string): Filter parameters for incidents (e.g., status, priority).
+     - `pagination` (optional object): Pagination details like page size/offset.
+   - **Returns**: Array of Datadog incidents and associated metadata.
 
-### Prompts
+2. `get_incident`
 
-- `summarize_notes` - Generate a summary of all stored notes
-  - Includes all note contents as embedded resources
-  - Returns structured prompt for LLM summarization
+   - Retrieve detailed information about a specific Datadog incident.
+   - **Inputs**:
+     - `incident_id` (string): Incident ID to fetch details for.
+   - **Returns**: Detailed incident information (title, status, timestamps, etc.).
 
-## Development
+3. _(Planned)_: Additional tools for creating, updating, or resolving incidents, as well as for managing other Datadog resources (e.g., dashboards, monitors).
 
-Install dependencies:
+## Setup
+
+### Datadog Credentials
+
+You need valid Datadog API credentials to use this MCP server:
+
+- `DATADOG_API_KEY`: Your Datadog API key
+- `DATADOG_APP_KEY`: Your Datadog Application key
+- `DATADOG_SITE` (optional): The Datadog site (e.g. `datadoghq.eu`)
+
+Export them in your environment before running the server:
 
 ```bash
-npm install
-```
-
-Build the server:
-
-```bash
-npm run build
-```
-
-For development with auto-rebuild:
-
-```bash
-npm run watch
+export DATADOG_API_KEY="your_api_key"
+export DATADOG_APP_KEY="your_app_key"
+export DATADOG_SITE="your_datadog_site"
 ```
 
 ## Installation
 
-To use with Claude Desktop, add the server config:
+```bash
+pnpm install
+pnpm build
+pnpm watch   # for development with auto-rebuild
+```
 
-On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+## Usage with Claude Desktop
+
+To use this with Claude Desktop, add the following to your `claude_desktop_config.json`:
+
+On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
-    "mcp-server-datadog": {
-      "command": "/path/to/mcp-server-datadog/build/index.js"
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+      }
     }
   }
 }
 ```
 
-### Debugging
+```json
+{
+  "mcpServers": {
+    "datadog": {
+      "command": "/path/to/mcp-server-datadog/build/index.js",
+      "env": {
+        "DATADOG_API_KEY": "<YOUR_API_KEY>",
+        "DATADOG_APP_KEY": "<YOUR_APP_KEY>",
+        "DATADOG_SITE": "<YOUR_SITE>" // Optional
+      }
+    }
+  }
+}
+```
 
-Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:
+Or specify via `npx`:
+
+```json
+{
+  "mcpServers": {
+    "mcp-server-datadog": {
+      "command": "npx",
+      "args": ["-y", "@winor30/mcp-server-datadog"],
+      "env": {
+        "DATADOG_API_KEY": "<YOUR_API_KEY>",
+        "DATADOG_APP_KEY": "<YOUR_APP_KEY>",
+        "DATADOG_SITE": "<YOUR_SITE>" // Optional
+      }
+    }
+  }
+}
+```
+
+## Debugging
+
+Because MCP servers communicate over standard input/output, debugging can sometimes be tricky. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector). You can run the inspector with:
 
 ```bash
 npm run inspector
 ```
 
-The Inspector will provide a URL to access debugging tools in your browser.
+The inspector will provide a URL you can open in your browser to see logs and send requests manually.
+
+## Contributing
+
+Contributions are welcome! Feel free to open an issue or a pull request if you have any suggestions, bug reports, or improvements to propose.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+```
+
+```
