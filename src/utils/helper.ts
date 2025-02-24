@@ -10,8 +10,10 @@ import { ZodSchema } from 'zod'
  * @param {'info' | 'error'} severity - The severity level of the log message.
  * @param {...any[]} args - Additional arguments to be logged, which will be concatenated into a single string.
  */
-export function log(severity: 'info' | 'error', ...args: any[]) {
-  // eslint-disable-line @typescript-eslint/no-explicit-any
+export function log(
+  severity: 'info' | 'error',
+  ...args: any[] // eslint-disable-line @typescript-eslint/no-explicit-any
+) {
   const msg = `[${severity.toUpperCase()} ${new Date().toISOString()}] ${args.join(' ')}\n`
   process.stderr.write(msg)
 }
@@ -24,12 +26,16 @@ export const config = {
 
 export { version as mcpDatadogVersion } from '../../package.json'
 
-type JsonSchema = Record<string, any>
+type JsonSchema = Record<string, any> // eslint-disable-line @typescript-eslint/no-explicit-any
 
 function pickRootObjectProperty(
   fullSchema: JsonSchema,
   schemaName: string,
-): { type: 'object'; properties: any; required?: string[] } {
+): {
+  type: 'object'
+  properties: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  required?: string[]
+} {
   const definitions = fullSchema.definitions ?? {}
   const root = definitions[schemaName]
   return {
@@ -54,7 +60,7 @@ function pickRootObjectProperty(
  * @returns A tool object containing the name, description, and input JSON Schema.
  */
 export function createToolSchema<T extends string>(
-  schema: ZodSchema<any>,
+  schema: ZodSchema<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
   name: T,
   description: string,
 ): Tool & { name: T } {
