@@ -1,7 +1,8 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v2 } from '@datadog/datadog-api-client'
-import { config, createToolSchema } from '../../utils/helper'
+import { v2 } from '@datadog/datadog-api-client'
+import { createToolSchema } from '../../utils/tool'
 import { GetIncidentZodSchema, ListIncidentsZodSchema } from './schema'
+import { datadogConfig } from '../../utils/datadog'
 
 type IncidentToolName = 'list_incidents' | 'get_incident'
 type IncidentTool = ExtendedTool<IncidentToolName>
@@ -19,22 +20,7 @@ export const INCIDENT_TOOLS: IncidentTool[] = [
   ),
 ] as const
 
-const CONFIG = client.createConfiguration({
-  authMethods: {
-    apiKeyAuth: config.apiKeyAuth,
-    appKeyAuth: config.appKeyAuth,
-  },
-})
-CONFIG.unstableOperations = {
-  'v2.listIncidents': true,
-  'v2.getIncident': true,
-}
-if (config.site != null) {
-  CONFIG.setServerVariables({
-    site: config.site,
-  })
-}
-const API_INSTANCE = new v2.IncidentsApi(CONFIG)
+const API_INSTANCE = new v2.IncidentsApi(datadogConfig)
 
 type IncidentToolHandlers = ToolHandlers<IncidentToolName>
 

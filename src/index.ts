@@ -13,7 +13,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
-import { config, log, mcpDatadogVersion } from './utils/helper'
+import { log, mcpDatadogVersion } from './utils/helper'
 import { INCIDENT_HANDLERS, INCIDENT_TOOLS } from './tools/incident'
 import { ToolHandlers } from './utils/types'
 
@@ -77,11 +77,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
  * which sends and receives data through standard input and output.
  */
 async function main() {
-  if (config.apiKeyAuth == null || config.appKeyAuth == null) {
-    log('error', 'Server error: Missing Datadog API key or app key')
-    process.exit(1)
-  }
-
   const transport = new StdioServerTransport()
   await server.connect(transport)
 }
