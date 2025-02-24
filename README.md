@@ -25,6 +25,7 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Detailed incident information (title, status, timestamps, etc.).
 
 3. `get_monitors`
+
    - Fetch the status of Datadog monitors.
    - **Inputs**:
      - `groupStates` (optional array): States to filter (e.g., alert, warn, no data, ok).
@@ -33,6 +34,7 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Monitors data and a summary of their statuses.
 
 4. `get_logs`
+
    - Search and retrieve logs from Datadog.
    - **Inputs**:
      - `query` (string): Datadog logs query string.
@@ -42,6 +44,7 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of matching logs.
 
 5. `list_dashboards`
+
    - Get a list of dashboards from Datadog.
    - **Inputs**:
      - `name` (optional string): Filter dashboards by name.
