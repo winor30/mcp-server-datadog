@@ -4,8 +4,8 @@ MCP server for the Datadog API, enabling incident management and more.
 
 ## Features
 
-- **Incident Management**: Enable listing and retrieving Datadog incidents through dedicated tools.
-- **Extensible Design**: Intended for future integrations with additional Datadog APIs.
+- **Observability Tools**: Provides a mechanism to leverage key Datadog monitoring features, such as incidents, monitors, logs, dashboards, and metrics, through the MCP server.
+- **Extensible Design**: Designed to easily integrate with additional Datadog APIs, allowing for seamless future feature expansion.
 
 ## Tools
 
@@ -24,7 +24,40 @@ MCP server for the Datadog API, enabling incident management and more.
      - `incident_id` (string): Incident ID to fetch details for.
    - **Returns**: Detailed incident information (title, status, timestamps, etc.).
 
-3. _(Planned)_: Additional tools for creating, updating, or resolving incidents, as well as for managing other Datadog resources (e.g., dashboards, monitors).
+3. `get_monitors`
+
+   - Fetch the status of Datadog monitors.
+   - **Inputs**:
+     - `groupStates` (optional array): States to filter (e.g., alert, warn, no data, ok).
+     - `name` (optional string): Filter by name.
+     - `tags` (optional array): Filter by tags.
+   - **Returns**: Monitors data and a summary of their statuses.
+
+4. `get_logs`
+
+   - Search and retrieve logs from Datadog.
+   - **Inputs**:
+     - `query` (string): Datadog logs query string.
+     - `from` (number): Start time in epoch seconds.
+     - `to` (number): End time in epoch seconds.
+     - `limit` (optional number): Maximum number of logs to return (defaults to 100).
+   - **Returns**: Array of matching logs.
+
+5. `list_dashboards`
+
+   - Get a list of dashboards from Datadog.
+   - **Inputs**:
+     - `name` (optional string): Filter dashboards by name.
+     - `tags` (optional array): Filter dashboards by tags.
+   - **Returns**: Array of dashboards with URL references.
+
+6. `get_metrics`
+   - Retrieve metrics data from Datadog.
+   - **Inputs**:
+     - `query` (string): Metrics query string.
+     - `from` (number): Start time in epoch seconds.
+     - `to` (number): End time in epoch seconds.
+   - **Returns**: Metrics data for the queried timeframe.
 
 ## Setup
 
@@ -122,8 +155,4 @@ Contributions are welcome! Feel free to open an issue or a pull request if you h
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
-
-```
-
-```
+This project is licensed under the [Apache License, Version 2.0](./LICENSE).
