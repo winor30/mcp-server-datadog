@@ -16,3 +16,7 @@ export function log(
 }
 
 export { version as mcpDatadogVersion } from '../../package.json'
+
+export function unreachable(value: never): never {
+  throw new Error(`Unreachable code: ${value}`)
+}
