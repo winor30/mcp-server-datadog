@@ -1,0 +1,37 @@
+{
+  "name": "@winor30/mcp-server-datadog",
+  "version": "0.1.0",
+  "description": "MCP server for interacting with Datadog API",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "Datadog MCP Server": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "tsup &&  node -e \"require('fs').chmodSync('build/index.js', '755')\"",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js",
+    "lint": "eslint . --ext .ts,.js",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@datadog/datadog-api-client": "^1.32.0",
+    "@modelcontextprotocol/sdk": "0.6.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.0",
+    "@eslint/js": "^9.21.0",
+    "@types/node": "^20.11.24",
+    "eslint": "^9.21.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.2",
+    "tsup": "^8.3.6",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.24.1"
+  }
+}
