@@ -15,6 +15,10 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 import { log, mcpDatadogVersion } from './utils/helper'
 import { INCIDENT_HANDLERS, INCIDENT_TOOLS } from './tools/incident'
+import { METRICS_TOOLS, METRICS_HANDLERS } from './tools/metrics'
+import { LOGS_TOOLS, LOGS_HANDLERS } from './tools/logs'
+import { MONITORS_TOOLS, MONITORS_HANDLERS } from './tools/monitors'
+import { DASHBOARDS_TOOLS, DASHBOARDS_HANDLERS } from './tools/dashboards'
 import { ToolHandlers } from './utils/types'
 
 const server = new Server(
@@ -39,12 +43,22 @@ server.onerror = (error) => {
  */
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: [...INCIDENT_TOOLS],
+    tools: [
+      ...INCIDENT_TOOLS,
+      ...METRICS_TOOLS,
+      ...LOGS_TOOLS,
+      ...MONITORS_TOOLS,
+      ...DASHBOARDS_TOOLS,
+    ],
   }
 })
 
 const TOOL_HANDLERS: ToolHandlers = {
   ...INCIDENT_HANDLERS,
+  ...METRICS_HANDLERS,
+  ...LOGS_HANDLERS,
+  ...MONITORS_HANDLERS,
+  ...DASHBOARDS_HANDLERS,
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.
