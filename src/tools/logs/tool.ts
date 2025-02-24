@@ -30,8 +30,8 @@ export const LOGS_HANDLERS: LogsToolHandlers = {
         filter: {
           query,
           // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
-          from: (from * 1000).toString(),
-          to: (to * 1000).toString(),
+          from: `${from * 1000}`,
+          to: `${to * 1000}`,
         },
         page: {
           limit,
