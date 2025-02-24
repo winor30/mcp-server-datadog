@@ -8,6 +8,3 @@ export const ListIncidentsZodSchema = z.object({
 export const GetIncidentZodSchema = z.object({
   incidentId: z.string().nonempty(),
 })
-
-export type ListIncidentsArgs = z.infer<typeof ListIncidentsZodSchema>
-export type GetIncidentArgs = z.infer<typeof GetIncidentZodSchema>

@@ -26,8 +26,10 @@ type IncidentToolHandlers = ToolHandlers<IncidentToolName>
 
 export const INCIDENT_HANDLERS: IncidentToolHandlers = {
   list_incidents: async (request) => {
-    const pageSize = Number(request.params.arguments?.pageSize) || 10
-    const pageOffset = Number(request.params.arguments?.pageOffset) || 0
+    const { pageSize, pageOffset } = ListIncidentsZodSchema.parse(
+      request.params.arguments,
+    )
+
     const res = await API_INSTANCE.listIncidents({
       pageSize: pageSize,
       pageOffset: pageOffset,
@@ -44,7 +46,7 @@ export const INCIDENT_HANDLERS: IncidentToolHandlers = {
     }
   },
   get_incident: async (request) => {
-    const incidentId = request.params.arguments?.incidentId as string
+    const { incidentId } = GetIncidentZodSchema.parse(request.params.arguments)
     const res = await API_INSTANCE.getIncident({
       incidentId: incidentId,
     })
