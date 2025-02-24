@@ -3,11 +3,11 @@ name: Publish to GitHub Packages
 on:
   push:
     tags:
-      - 'v*.*.*' # v1.0.0 などのタグを push すると実行
+      - 'v*.*.*'
 
 permissions:
   contents: read
-  packages: write # これが必須
+  packages: write
 
 jobs:
   publish:
@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # ここでregistry-urlを指定しておくとnpm/pnpmコマンドが自動でnpm.pkg.github.comを使用
           registry-url: 'https://npm.pkg.github.com'
 
       - name: Install pnpm
@@ -34,10 +33,6 @@ jobs:
         run: pnpm run build
 
       - name: Publish
-        # publishConfigにregistryがある場合は --registry指定は不要。ただ明示的に指定するケースもある
         run: pnpm publish
         env:
-          # GITHUB_TOKENは自動でActionsに渡されるが、pnpm/npmが使用するトークンはこの変数を参照
-          # setup-node@v4 の registry-url 設定によって自動的に .npmrc が書き換わるので
-          # NODE_AUTH_TOKEN を指定しなくても動く可能性はありますが、明示的に指定しておくのが無難です
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
