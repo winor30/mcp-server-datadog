@@ -1,0 +1,1 @@
+export { DASHBOARDS_TOOLS, DASHBOARDS_HANDLERS } from './tool'
