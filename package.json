@@ -2,14 +2,26 @@
   "name": "@winor30/mcp-server-datadog",
   "version": "0.1.0",
   "description": "MCP server for interacting with Datadog API",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/winor30/mcp-server-datadog.git"
+  },
   "type": "module",
   "bin": {
     "mcp-server-datadog": "./build/index.js"
   },
+  "main": "build/index.js",
+  "module": "build/index.js",
+  "types": "build/index.d.ts",
   "files": [
-    "build"
+    "build",
+    "README.md"
   ],
+  "access": "public",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup &&  node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
@@ -34,5 +46,8 @@
     "tsup": "^8.3.6",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.24.1"
+  },
+  "engines": {
+    "node": ">=16.17.0"
   }
 }
