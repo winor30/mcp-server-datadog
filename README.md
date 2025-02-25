@@ -52,6 +52,7 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of dashboards with URL references.
 
 6. `get_metrics`
+
    - Retrieve metrics data from Datadog.
    - **Inputs**:
      - `query` (string): Metrics query string.
