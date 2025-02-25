@@ -4,7 +4,7 @@ import { createToolSchema } from '../../utils/tool'
 import { GetMonitorsZodSchema } from './schema'
 import { datadogConfig } from '../../utils/datadog'
 import { unreachable } from '../../utils/helper'
-import { UnparsedObject } from '@datadog/datadog-api-client/dist/packages/datadog-api-client-common/util'
+import { UnparsedObject } from '@datadog/datadog-api-client/dist/packages/datadog-api-client-common/util.js'
 
 type MonitorsToolName = 'get_monitors'
 type MonitorsTool = ExtendedTool<MonitorsToolName>
