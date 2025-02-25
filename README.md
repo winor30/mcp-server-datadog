@@ -59,6 +59,18 @@ MCP server for the Datadog API, enabling incident management and more.
      - `to` (number): End time in epoch seconds.
    - **Returns**: Metrics data for the queried timeframe.
 
+7. `list_traces`
+   - Retrieve a list of APM traces from Datadog.
+   - **Inputs**:
+     - `query` (string): Datadog APM trace query string.
+     - `from` (number): Start time in epoch seconds.
+     - `to` (number): End time in epoch seconds.
+     - `limit` (optional number): Maximum number of traces to return (defaults to 100).
+     - `sort` (optional string): Sort order for traces (defaults to '-timestamp').
+     - `service` (optional string): Filter by service name.
+     - `operation` (optional string): Filter by operation name.
+   - **Returns**: Array of matching traces from Datadog APM.
+
 ## Setup
 
 ### Datadog Credentials
