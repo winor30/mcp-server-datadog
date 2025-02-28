@@ -4,9 +4,20 @@ import { createToolSchema } from '../../utils/tool'
 import { ListHostsZodSchema, GetActiveHostsCountZodSchema, MuteHostZodSchema, UnmuteHostZodSchema } from './schema'
 import { datadogConfig } from '../../utils/datadog'
 
+/**
+ * This module implements Datadog host management tools for muting, unmuting, 
+ * and retrieving host information using the Datadog API client.
+ */
+
+/** Available host management tool names */
 type HostsToolName = 'list_hosts' | 'get_active_hosts_count' | 'mute_host' | 'unmute_host'
+/** Extended tool type with host-specific operations */
 type HostsTool = ExtendedTool<HostsToolName>
 
+/**
+ * Array of available host management tools.
+ * Each tool is created with a schema for input validation and includes a description.
+ */
 export const HOSTS_TOOLS: HostsTool[] = [
   createToolSchema(
     MuteHostZodSchema,
@@ -30,11 +41,21 @@ export const HOSTS_TOOLS: HostsTool[] = [
   ),
 ] as const
 
+/** Datadog API client instance for host operations */
 const API_INSTANCE = new v1.HostsApi(datadogConfig)
 
+/** Type definition for host management tool implementations */
 type HostsToolHandlers = ToolHandlers<HostsToolName>
 
+/**
+ * Implementation of host management tool handlers.
+ * Each handler validates inputs using Zod schemas and interacts with the Datadog API.
+ */
 export const HOSTS_HANDLERS: HostsToolHandlers = {
+  /**
+   * Mutes a specified host in Datadog.
+   * Silences alerts and notifications for the host until unmuted or until the specified end time.
+   */
   mute_host: async (request) => {
     const { hostname, message, end, override } = MuteHostZodSchema.parse(request.params.arguments)
 
@@ -60,6 +81,10 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
     }
   },
 
+  /**
+   * Unmutes a previously muted host in Datadog.
+   * Re-enables alerts and notifications for the specified host.
+   */
   unmute_host: async (request) => {
     const { hostname } = UnmuteHostZodSchema.parse(request.params.arguments)
 
@@ -80,6 +105,10 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
     }
   },
 
+  /**
+   * Retrieves counts of active and up hosts in Datadog.
+   * Provides total counts of hosts that are reporting and operational.
+   */
   get_active_hosts_count: async (request) => {
     const { from } = GetActiveHostsCountZodSchema.parse(request.params.arguments)
     
@@ -100,6 +129,11 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
     }
   },
 
+  /**
+   * Lists and filters hosts monitored by Datadog.
+   * Supports comprehensive querying with filtering, sorting, and pagination.
+   * Returns detailed host information including status, metadata, and monitoring data.
+   */
   list_hosts: async (request) => {
     const {
       filter,
@@ -127,6 +161,7 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
       throw new Error('No hosts data returned')
     }
 
+    // Transform API response into a more convenient format
     const hosts = response.hostList.map((host) => ({
       name: host.name,
       id: host.id,
