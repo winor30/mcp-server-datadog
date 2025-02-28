@@ -72,6 +72,40 @@ MCP server for the Datadog API, enabling incident management and more.
      - `operation` (optional string): Filter by operation name.
    - **Returns**: Array of matching traces from Datadog APM.
 
+8. `list_hosts`
+   - Get list of hosts from Datadog.
+   - **Inputs**:
+     - `filter` (optional string): Filter string for search results.
+     - `sort_field` (optional string): Field to sort hosts by.
+     - `sort_dir` (optional string): Sort direction (asc/desc).
+     - `start` (optional number): Starting offset for pagination.
+     - `count` (optional number): Max number of hosts to return (max: 1000).
+     - `from` (optional number): Search hosts from this UNIX timestamp.
+     - `include_muted_hosts_data` (optional boolean): Include muted hosts status and expiry.
+     - `include_hosts_metadata` (optional boolean): Include host metadata (version, platform, etc).
+   - **Returns**: Array of hosts with details including name, ID, aliases, apps, mute status, and more.
+
+9. `get_active_hosts_count`
+   - Get the total number of active hosts in Datadog.
+   - **Inputs**:
+     - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
+   - **Returns**: Count of total active and up hosts.
+
+10. `mute_host`
+    - Mute a host in Datadog.
+    - **Inputs**:
+      - `hostname` (string): The name of the host to mute.
+      - `message` (optional string): Message to associate with the muting of this host.
+      - `end` (optional number): POSIX timestamp for when the mute should end.
+      - `override` (optional boolean): If true and the host is already muted, replaces existing end time.
+    - **Returns**: Success status and confirmation message.
+
+11. `unmute_host`
+    - Unmute a host in Datadog.
+    - **Inputs**:
+      - `hostname` (string): The name of the host to unmute.
+    - **Returns**: Success status and confirmation message.
+
 ## Setup
 
 ### Datadog Credentials
