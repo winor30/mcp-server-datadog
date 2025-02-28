@@ -173,7 +173,7 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
       metrics: host.metrics,
       sources: host.sources,
       up: host.up,
-      url: `https://app.datadoghq.com/infrastructure?host=${host.name}`,
+      url: `https://${datadogConfig.site}/infrastructure?host=${host.name}`,
     }))
 
     return {
