@@ -20,6 +20,7 @@ import { LOGS_TOOLS, LOGS_HANDLERS } from './tools/logs'
 import { MONITORS_TOOLS, MONITORS_HANDLERS } from './tools/monitors'
 import { DASHBOARDS_TOOLS, DASHBOARDS_HANDLERS } from './tools/dashboards'
 import { TRACES_TOOLS, TRACES_HANDLERS } from './tools/traces'
+import { HOSTS_TOOLS, HOSTS_HANDLERS } from './tools/hosts'
 import { ToolHandlers } from './utils/types'
 
 const server = new Server(
@@ -51,6 +52,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       ...MONITORS_TOOLS,
       ...DASHBOARDS_TOOLS,
       ...TRACES_TOOLS,
+      ...HOSTS_TOOLS,
     ],
   }
 })
@@ -62,6 +64,7 @@ const TOOL_HANDLERS: ToolHandlers = {
   ...MONITORS_HANDLERS,
   ...DASHBOARDS_HANDLERS,
   ...TRACES_HANDLERS,
+  ...HOSTS_HANDLERS,
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.
