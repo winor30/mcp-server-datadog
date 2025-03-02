@@ -1,1 +1,1 @@
-export { TRACES_TOOLS, TRACES_HANDLERS } from './tool'
+export { TRACES_TOOLS, createTracesToolHandlers } from './tool'

@@ -1,1 +1,1 @@
-export { MONITORS_TOOLS, MONITORS_HANDLERS } from './tool'
+export { MONITORS_TOOLS, createMonitorsToolHandlers } from './tool'

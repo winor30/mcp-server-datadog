@@ -1,1 +1,1 @@
-export { DASHBOARDS_TOOLS, DASHBOARDS_HANDLERS } from './tool'
+export { DASHBOARDS_TOOLS, createDashboardsToolHandlers } from './tool'

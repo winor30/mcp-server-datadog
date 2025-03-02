@@ -1,1 +1,1 @@
-export { INCIDENT_TOOLS, INCIDENT_HANDLERS } from './tool'
+export { INCIDENT_TOOLS, createIncidentToolHandlers } from './tool'
