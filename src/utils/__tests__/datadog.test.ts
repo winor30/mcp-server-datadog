@@ -11,14 +11,6 @@ describe('createDatadogConfig', () => {
       appKeyAuth: 'test-app-key',
       site: 'us3.datadoghq.com',
     })
-    /*
-    "apiKeyAuth": ApiKeyAuthAuthentication {
-    +     "apiKey": "test",
-    +   },
-    +   "appKeyAuth": AppKeyAuthAuthentication {
-    +     "apiKey": "test",
-    +   },
-    */
     expect(datadogConfig.authMethods).toEqual({
       apiKeyAuth: new ApiKeyAuthAuthentication('test-api-key'),
       appKeyAuth: new AppKeyAuthAuthentication('test-app-key'),
