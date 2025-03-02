@@ -3,6 +3,6 @@
  * Re-exports the tools and their handlers from the implementation file.
  *
  * HOSTS_TOOLS: Array of tool schemas defining the available host management operations
- * HOSTS_HANDLERS: Object containing the implementation of each host management operation
+ * createHostsToolHandlers: Function that creates host management operation handlers
  */
-export { HOSTS_TOOLS, HOSTS_HANDLERS } from './tool'
+export { HOSTS_TOOLS, createHostsToolHandlers } from './tool'

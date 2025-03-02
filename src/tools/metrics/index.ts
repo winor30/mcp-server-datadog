@@ -1,1 +1,1 @@
-export { METRICS_TOOLS, METRICS_HANDLERS } from './tool'
+export { METRICS_TOOLS, createMetricsToolHandlers } from './tool'
