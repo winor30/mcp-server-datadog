@@ -61,6 +61,7 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Metrics data for the queried timeframe.
 
 7. `list_traces`
+
    - Retrieve a list of APM traces from Datadog.
    - **Inputs**:
      - `query` (string): Datadog APM trace query string.
@@ -73,6 +74,7 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of matching traces from Datadog APM.
 
 8. `list_hosts`
+
    - Get list of hosts from Datadog.
    - **Inputs**:
      - `filter` (optional string): Filter string for search results.
@@ -86,12 +88,14 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of hosts with details including name, ID, aliases, apps, mute status, and more.
 
 9. `get_active_hosts_count`
+
    - Get the total number of active hosts in Datadog.
    - **Inputs**:
      - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
    - **Returns**: Count of total active and up hosts.
 
 10. `mute_host`
+
     - Mute a host in Datadog.
     - **Inputs**:
       - `hostname` (string): The name of the host to mute.
