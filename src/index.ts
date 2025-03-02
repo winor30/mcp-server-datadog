@@ -14,14 +14,18 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
 import { log, mcpDatadogVersion } from './utils/helper'
-import { INCIDENT_HANDLERS, INCIDENT_TOOLS } from './tools/incident'
-import { METRICS_TOOLS, METRICS_HANDLERS } from './tools/metrics'
-import { LOGS_TOOLS, LOGS_HANDLERS } from './tools/logs'
-import { MONITORS_TOOLS, MONITORS_HANDLERS } from './tools/monitors'
-import { DASHBOARDS_TOOLS, DASHBOARDS_HANDLERS } from './tools/dashboards'
-import { TRACES_TOOLS, TRACES_HANDLERS } from './tools/traces'
-import { HOSTS_TOOLS, HOSTS_HANDLERS } from './tools/hosts'
+import { INCIDENT_TOOLS, createIncidentToolHandlers } from './tools/incident'
+import { METRICS_TOOLS, createMetricsToolHandlers } from './tools/metrics'
+import { LOGS_TOOLS, createLogsToolHandlers } from './tools/logs'
+import { MONITORS_TOOLS, createMonitorsToolHandlers } from './tools/monitors'
+import {
+  DASHBOARDS_TOOLS,
+  createDashboardsToolHandlers,
+} from './tools/dashboards'
+import { TRACES_TOOLS, createTracesToolHandlers } from './tools/traces'
+import { HOSTS_TOOLS, createHostsToolHandlers } from './tools/hosts'
 import { ToolHandlers } from './utils/types'
+import { createDatadogConfig } from './utils/datadog'
 
 const server = new Server(
   {
@@ -57,14 +61,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   }
 })
 
+if (!process.env.DATADOG_API_KEY || !process.env.DATADOG_APP_KEY) {
+  throw new Error('DATADOG_API_KEY and DATADOG_APP_KEY must be set')
+}
+
+const datadogConfig = createDatadogConfig({
+  apiKeyAuth: process.env.DATADOG_API_KEY,
+  appKeyAuth: process.env.DATADOG_APP_KEY,
+  site: process.env.DATADOG_SITE,
+})
+
 const TOOL_HANDLERS: ToolHandlers = {
-  ...INCIDENT_HANDLERS,
-  ...METRICS_HANDLERS,
-  ...LOGS_HANDLERS,
-  ...MONITORS_HANDLERS,
-  ...DASHBOARDS_HANDLERS,
-  ...TRACES_HANDLERS,
-  ...HOSTS_HANDLERS,
+  ...createIncidentToolHandlers(datadogConfig),
+  ...createMetricsToolHandlers(datadogConfig),
+  ...createLogsToolHandlers(datadogConfig),
+  ...createMonitorsToolHandlers(datadogConfig),
+  ...createDashboardsToolHandlers(datadogConfig),
+  ...createTracesToolHandlers(datadogConfig),
+  ...createHostsToolHandlers(datadogConfig),
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.
