@@ -1,16 +1,25 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
-import { ListHostsZodSchema, GetActiveHostsCountZodSchema, MuteHostZodSchema, UnmuteHostZodSchema } from './schema'
+import {
+  ListHostsZodSchema,
+  GetActiveHostsCountZodSchema,
+  MuteHostZodSchema,
+  UnmuteHostZodSchema,
+} from './schema'
 import { datadogConfig } from '../../utils/datadog'
 
 /**
- * This module implements Datadog host management tools for muting, unmuting, 
+ * This module implements Datadog host management tools for muting, unmuting,
  * and retrieving host information using the Datadog API client.
  */
 
 /** Available host management tool names */
-type HostsToolName = 'list_hosts' | 'get_active_hosts_count' | 'mute_host' | 'unmute_host'
+type HostsToolName =
+  | 'list_hosts'
+  | 'get_active_hosts_count'
+  | 'mute_host'
+  | 'unmute_host'
 /** Extended tool type with host-specific operations */
 type HostsTool = ExtendedTool<HostsToolName>
 
@@ -19,11 +28,7 @@ type HostsTool = ExtendedTool<HostsToolName>
  * Each tool is created with a schema for input validation and includes a description.
  */
 export const HOSTS_TOOLS: HostsTool[] = [
-  createToolSchema(
-    MuteHostZodSchema,
-    'mute_host',
-    'Mute a host in Datadog',
-  ),
+  createToolSchema(MuteHostZodSchema, 'mute_host', 'Mute a host in Datadog'),
   createToolSchema(
     UnmuteHostZodSchema,
     'unmute_host',
@@ -57,7 +62,9 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
    * Silences alerts and notifications for the host until unmuted or until the specified end time.
    */
   mute_host: async (request) => {
-    const { hostname, message, end, override } = MuteHostZodSchema.parse(request.params.arguments)
+    const { hostname, message, end, override } = MuteHostZodSchema.parse(
+      request.params.arguments,
+    )
 
     await API_INSTANCE.muteHost({
       hostName: hostname,
@@ -72,10 +79,14 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            status: 'success',
-            message: `Host ${hostname} has been muted successfully${message ? ` with message: ${message}` : ''}${end ? ` until ${new Date(end * 1000).toISOString()}` : ''}`
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              status: 'success',
+              message: `Host ${hostname} has been muted successfully${message ? ` with message: ${message}` : ''}${end ? ` until ${new Date(end * 1000).toISOString()}` : ''}`,
+            },
+            null,
+            2,
+          ),
         },
       ],
     }
@@ -96,10 +107,14 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            status: 'success',
-            message: `Host ${hostname} has been unmuted successfully`
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              status: 'success',
+              message: `Host ${hostname} has been unmuted successfully`,
+            },
+            null,
+            2,
+          ),
         },
       ],
     }
@@ -110,8 +125,10 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
    * Provides total counts of hosts that are reporting and operational.
    */
   get_active_hosts_count: async (request) => {
-    const { from } = GetActiveHostsCountZodSchema.parse(request.params.arguments)
-    
+    const { from } = GetActiveHostsCountZodSchema.parse(
+      request.params.arguments,
+    )
+
     const response = await API_INSTANCE.getHostTotals({
       from,
     })
@@ -120,10 +137,14 @@ export const HOSTS_HANDLERS: HostsToolHandlers = {
       content: [
         {
           type: 'text',
-          text: JSON.stringify({
-            total_active: response.totalActive || 0, // Total number of active hosts (UP and reporting) to Datadog
-            total_up: response.totalUp || 0          // Number of hosts that are UP and reporting to Datadog
-          }, null, 2),
+          text: JSON.stringify(
+            {
+              total_active: response.totalActive || 0, // Total number of active hosts (UP and reporting) to Datadog
+              total_up: response.totalUp || 0, // Number of hosts that are UP and reporting to Datadog
+            },
+            null,
+            2,
+          ),
         },
       ],
     }
