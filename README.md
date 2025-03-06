@@ -1,4 +1,5 @@
 # Datadog MCP Server
+[![smithery badge](https://smithery.ai/badge/@winor30/mcp-server-datadog)](https://smithery.ai/server/@winor30/mcp-server-datadog)
 
 MCP server for the Datadog API, enabling incident management and more.
 
@@ -130,6 +131,15 @@ export DATADOG_SITE="your_datadog_site"
 
 ## Installation
 
+### Installing via Smithery
+
+To install Datadog MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@winor30/mcp-server-datadog):
+
+```bash
+npx -y @smithery/cli install @winor30/mcp-server-datadog --client claude
+```
+
+### Manual Installation
 ```bash
 pnpm install
 pnpm build
