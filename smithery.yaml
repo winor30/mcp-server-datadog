@@ -1,0 +1,37 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - datadogApiKey
+      - datadogAppKey
+    properties:
+      datadogApiKey:
+        type: string
+        description: Your Datadog API key
+      datadogAppKey:
+        type: string
+        description: Your Datadog Application key
+      datadogSite:
+        type: string
+        default: ""
+        description: Optional Datadog site (e.g. datadoghq.eu)
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'node',
+      args: ['build/index.js'],
+      env: Object.assign({}, process.env, {
+        DATADOG_API_KEY: config.datadogApiKey,
+        DATADOG_APP_KEY: config.datadogAppKey,
+        ...(config.datadogSite && { DATADOG_SITE: config.datadogSite })
+      })
+    })
+  exampleConfig:
+    datadogApiKey: your_datadog_api_key_here
+    datadogAppKey: your_datadog_app_key_here
+    datadogSite: datadoghq.com
