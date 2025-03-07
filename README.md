@@ -1,4 +1,5 @@
 # Datadog MCP Server
+
 [![smithery badge](https://smithery.ai/badge/@winor30/mcp-server-datadog)](https://smithery.ai/server/@winor30/mcp-server-datadog)
 
 MCP server for the Datadog API, enabling incident management and more.
@@ -140,6 +141,7 @@ npx -y @smithery/cli install @winor30/mcp-server-datadog --client claude
 ```
 
 ### Manual Installation
+
 ```bash
 pnpm install
 pnpm build
