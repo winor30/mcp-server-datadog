@@ -26,6 +26,7 @@ import { TRACES_TOOLS, createTracesToolHandlers } from './tools/traces'
 import { HOSTS_TOOLS, createHostsToolHandlers } from './tools/hosts'
 import { ToolHandlers } from './utils/types'
 import { createDatadogConfig } from './utils/datadog'
+import { createDowntimesToolHandlers, DOWNTIMES_TOOLS } from './tools/downtimes'
 
 const server = new Server(
   {
@@ -57,6 +58,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       ...DASHBOARDS_TOOLS,
       ...TRACES_TOOLS,
       ...HOSTS_TOOLS,
+      ...DOWNTIMES_TOOLS,
     ],
   }
 })
@@ -79,6 +81,7 @@ const TOOL_HANDLERS: ToolHandlers = {
   ...createDashboardsToolHandlers(datadogConfig),
   ...createTracesToolHandlers(datadogConfig),
   ...createHostsToolHandlers(datadogConfig),
+  ...createDowntimesToolHandlers(datadogConfig),
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.
