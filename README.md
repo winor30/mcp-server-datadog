@@ -107,10 +107,43 @@ MCP server for the Datadog API, enabling incident management and more.
     - **Returns**: Success status and confirmation message.
 
 11. `unmute_host`
+
     - Unmute a host in Datadog.
     - **Inputs**:
       - `hostname` (string): The name of the host to unmute.
     - **Returns**: Success status and confirmation message.
+
+12. `list_downtimes`
+
+    - List scheduled downtimes from Datadog.
+    - **Inputs**:
+      - `currentOnly` (optional boolean): Return only currently active downtimes when true.
+      - `monitorId` (optional number): Filter by monitor ID.
+    - **Returns**: Array of scheduled downtimes with details including scope, monitor information, and schedule.
+
+13. `schedule_downtime`
+
+    - Schedule a downtime in Datadog.
+    - **Inputs**:
+      - `scope` (string): Scope to apply downtime to (e.g. 'host:my-host').
+      - `start` (optional number): UNIX timestamp for the start of the downtime.
+      - `end` (optional number): UNIX timestamp for the end of the downtime.
+      - `message` (optional string): A message to include with the downtime.
+      - `timezone` (optional string): The timezone for the downtime (e.g. 'UTC', 'America/New_York').
+      - `monitorId` (optional number): The ID of the monitor to mute.
+      - `monitorTags` (optional array): A list of monitor tags for filtering.
+      - `recurrence` (optional object): Recurrence settings for the downtime.
+        - `type` (string): Recurrence type ('days', 'weeks', 'months', 'years').
+        - `period` (number): How often to repeat (must be >= 1).
+        - `weekDays` (optional array): Days of the week for weekly recurrence.
+        - `until` (optional number): UNIX timestamp for when the recurrence ends.
+    - **Returns**: Scheduled downtime details including ID and active status.
+
+14. `cancel_downtime`
+    - Cancel a scheduled downtime in Datadog.
+    - **Inputs**:
+      - `downtimeId` (number): The ID of the downtime to cancel.
+    - **Returns**: Confirmation of downtime cancellation.
 
 ## Setup
 
