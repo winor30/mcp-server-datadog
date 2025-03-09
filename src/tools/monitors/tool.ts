@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v1 } from '@datadog/datadog-api-client'
+import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { GetMonitorsZodSchema } from './schema'
 import { unreachable } from '../../utils/helper'
@@ -19,9 +19,8 @@ export const MONITORS_TOOLS: MonitorsTool[] = [
 type MonitorsToolHandlers = ToolHandlers<MonitorsToolName>
 
 export const createMonitorsToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v1.MonitorsApi,
 ): MonitorsToolHandlers => {
-  const apiInstance = new v1.MonitorsApi(config)
   return {
     get_monitors: async (request) => {
       const { groupStates, name, tags } = GetMonitorsZodSchema.parse(

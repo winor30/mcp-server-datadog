@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v2 } from '@datadog/datadog-api-client'
+import { v2 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { GetIncidentZodSchema, ListIncidentsZodSchema } from './schema'
 
@@ -22,24 +22,28 @@ export const INCIDENT_TOOLS: IncidentTool[] = [
 type IncidentToolHandlers = ToolHandlers<IncidentToolName>
 
 export const createIncidentToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v2.IncidentsApi,
 ): IncidentToolHandlers => {
-  const apiInstance = new v2.IncidentsApi(config)
   return {
     list_incidents: async (request) => {
       const { pageSize, pageOffset } = ListIncidentsZodSchema.parse(
         request.params.arguments,
       )
 
-      const res = await apiInstance.listIncidents({
-        pageSize: pageSize,
-        pageOffset: pageOffset,
+      const response = await apiInstance.listIncidents({
+        pageSize,
+        pageOffset,
       })
+
+      if (response.data == null) {
+        throw new Error('No incidents data returned')
+      }
+
       return {
         content: [
           {
             type: 'text',
-            text: `Listed incidents:\n${res.data
+            text: `Listed incidents:\n${response.data
               .map((d) => JSON.stringify(d))
               .join('\n')}`,
           },
@@ -50,14 +54,20 @@ export const createIncidentToolHandlers = (
       const { incidentId } = GetIncidentZodSchema.parse(
         request.params.arguments,
       )
-      const res = await apiInstance.getIncident({
-        incidentId: incidentId,
+
+      const response = await apiInstance.getIncident({
+        incidentId,
       })
+
+      if (response.data == null) {
+        throw new Error('No incident data returned')
+      }
+
       return {
         content: [
           {
             type: 'text',
-            text: `Incident: ${JSON.stringify(res)}`,
+            text: `Incident: ${JSON.stringify(response.data)}`,
           },
         ],
       }

@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v1 } from '@datadog/datadog-api-client'
+import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import {
   ListDowntimesZodSchema,
@@ -34,19 +34,16 @@ export const DOWNTIMES_TOOLS: DowntimesTool[] = [
 type DowntimesToolHandlers = ToolHandlers<DowntimesToolName>
 
 export const createDowntimesToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v1.DowntimesApi,
 ): DowntimesToolHandlers => {
-  const apiInstance = new v1.DowntimesApi(config)
-
   return {
     list_downtimes: async (request) => {
-      const { currentOnly, monitorId } = ListDowntimesZodSchema.parse(
+      const { currentOnly } = ListDowntimesZodSchema.parse(
         request.params.arguments,
       )
 
       const res = await apiInstance.listDowntimes({
         currentOnly,
-        monitorId,
       })
 
       return {
@@ -64,13 +61,13 @@ export const createDowntimesToolHandlers = (
 
       // Convert to the format expected by Datadog client
       const downtimeData: v1.Downtime = {
-        scope: params.scope,
+        scope: [params.scope],
         start: params.start,
         end: params.end,
         message: params.message,
         timezone: params.timezone,
         monitorId: params.monitorId,
-        monitor_tags: params.monitorTags,
+        monitorTags: params.monitorTags,
       }
 
       // Add recurrence configuration if provided
@@ -78,8 +75,7 @@ export const createDowntimesToolHandlers = (
         downtimeData.recurrence = {
           type: params.recurrence.type,
           period: params.recurrence.period,
-          week_days: params.recurrence.weekDays,
-          until: params.recurrence.until,
+          weekDays: params.recurrence.weekDays,
         }
       }
 

@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v1 } from '@datadog/datadog-api-client'
+import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { ListDashboardsZodSchema } from './schema'
 
@@ -17,9 +17,8 @@ export const DASHBOARDS_TOOLS: DashboardsTool[] = [
 type DashboardsToolHandlers = ToolHandlers<DashboardsToolName>
 
 export const createDashboardsToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v1.DashboardsApi,
 ): DashboardsToolHandlers => {
-  const apiInstance = new v1.DashboardsApi(config)
   return {
     list_dashboards: async (request) => {
       const { name, tags } = ListDashboardsZodSchema.parse(

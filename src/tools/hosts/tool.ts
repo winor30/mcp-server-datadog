@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v1 } from '@datadog/datadog-api-client'
+import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import {
   ListHostsZodSchema,
@@ -53,9 +53,8 @@ type HostsToolHandlers = ToolHandlers<HostsToolName>
  * Each handler validates inputs using Zod schemas and interacts with the Datadog API.
  */
 export const createHostsToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v1.HostsApi,
 ): HostsToolHandlers => {
-  const apiInstance = new v1.HostsApi(config)
   return {
     /**
      * Mutes a specified host in Datadog.
