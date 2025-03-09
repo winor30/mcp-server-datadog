@@ -27,6 +27,7 @@ import { HOSTS_TOOLS, createHostsToolHandlers } from './tools/hosts'
 import { ToolHandlers } from './utils/types'
 import { createDatadogConfig } from './utils/datadog'
 import { createDowntimesToolHandlers, DOWNTIMES_TOOLS } from './tools/downtimes'
+import { v2 } from '@datadog/datadog-api-client'
 
 const server = new Server(
   {
@@ -76,7 +77,7 @@ const datadogConfig = createDatadogConfig({
 const TOOL_HANDLERS: ToolHandlers = {
   ...createIncidentToolHandlers(datadogConfig),
   ...createMetricsToolHandlers(datadogConfig),
-  ...createLogsToolHandlers(datadogConfig),
+  ...createLogsToolHandlers(new v2.LogsApi(datadogConfig)),
   ...createMonitorsToolHandlers(datadogConfig),
   ...createDashboardsToolHandlers(datadogConfig),
   ...createTracesToolHandlers(datadogConfig),
