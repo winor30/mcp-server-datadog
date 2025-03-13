@@ -4,6 +4,10 @@
 
 MCP server for the Datadog API, enabling incident management and more.
 
+<a href="https://glama.ai/mcp/servers/bu8gtzkwfr">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/bu8gtzkwfr/badge" alt="mcp-server-datadog MCP server" />
+</a>
+
 ## Features
 
 - **Observability Tools**: Provides a mechanism to leverage key Datadog monitoring features, such as incidents, monitors, logs, dashboards, and metrics, through the MCP server.
