@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 export const ListDowntimesZodSchema = z.object({
   currentOnly: z.boolean().optional(),
-  monitorId: z.number().optional(),
 })
 
 export const ScheduleDowntimeZodSchema = z.object({

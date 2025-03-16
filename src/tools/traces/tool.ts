@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v2 } from '@datadog/datadog-api-client'
+import { v2 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { ListTracesZodSchema } from './schema'
 
@@ -17,9 +17,8 @@ export const TRACES_TOOLS: TracesTool[] = [
 type TracesToolHandlers = ToolHandlers<TracesToolName>
 
 export const createTracesToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v2.SpansApi,
 ): TracesToolHandlers => {
-  const apiInstance = new v2.SpansApi(config)
   return {
     list_traces: async (request) => {
       const {

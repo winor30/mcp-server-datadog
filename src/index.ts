@@ -27,6 +27,7 @@ import { HOSTS_TOOLS, createHostsToolHandlers } from './tools/hosts'
 import { ToolHandlers } from './utils/types'
 import { createDatadogConfig } from './utils/datadog'
 import { createDowntimesToolHandlers, DOWNTIMES_TOOLS } from './tools/downtimes'
+import { v2, v1 } from '@datadog/datadog-api-client'
 
 const server = new Server(
   {
@@ -74,14 +75,14 @@ const datadogConfig = createDatadogConfig({
 })
 
 const TOOL_HANDLERS: ToolHandlers = {
-  ...createIncidentToolHandlers(datadogConfig),
-  ...createMetricsToolHandlers(datadogConfig),
-  ...createLogsToolHandlers(datadogConfig),
-  ...createMonitorsToolHandlers(datadogConfig),
-  ...createDashboardsToolHandlers(datadogConfig),
-  ...createTracesToolHandlers(datadogConfig),
-  ...createHostsToolHandlers(datadogConfig),
-  ...createDowntimesToolHandlers(datadogConfig),
+  ...createIncidentToolHandlers(new v2.IncidentsApi(datadogConfig)),
+  ...createMetricsToolHandlers(new v1.MetricsApi(datadogConfig)),
+  ...createLogsToolHandlers(new v2.LogsApi(datadogConfig)),
+  ...createMonitorsToolHandlers(new v1.MonitorsApi(datadogConfig)),
+  ...createDashboardsToolHandlers(new v1.DashboardsApi(datadogConfig)),
+  ...createTracesToolHandlers(new v2.SpansApi(datadogConfig)),
+  ...createHostsToolHandlers(new v1.HostsApi(datadogConfig)),
+  ...createDowntimesToolHandlers(new v1.DowntimesApi(datadogConfig)),
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.

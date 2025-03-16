@@ -1,5 +1,5 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
-import { client, v1 } from '@datadog/datadog-api-client'
+import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { GetMetricsZodSchema } from './schema'
 
@@ -17,9 +17,8 @@ export const METRICS_TOOLS: MetricsTool[] = [
 type MetricsToolHandlers = ToolHandlers<MetricsToolName>
 
 export const createMetricsToolHandlers = (
-  config: client.Configuration,
+  apiInstance: v1.MetricsApi,
 ): MetricsToolHandlers => {
-  const apiInstance = new v1.MetricsApi(config)
   return {
     get_metrics: async (request) => {
       const { from, to, query } = GetMetricsZodSchema.parse(
