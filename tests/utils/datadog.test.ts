@@ -1,8 +1,9 @@
+import { describe, it, expect } from 'vitest'
 import {
   ApiKeyAuthAuthentication,
   AppKeyAuthAuthentication,
 } from '@datadog/datadog-api-client/dist/packages/datadog-api-client-common'
-import { createDatadogConfig, getDatadogSite } from '../datadog'
+import { createDatadogConfig, getDatadogSite } from '../../src/utils/datadog'
 
 describe('createDatadogConfig', () => {
   it('should create a datadog config with custom site when DATADOG_SITE is configured', () => {
