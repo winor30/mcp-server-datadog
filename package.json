@@ -29,7 +29,7 @@
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "eslint . --ext .ts,.js --fix",
     "format": "prettier --write .",
-    "test": "jest",
+    "test": "vitest run",
     "lint-staged": "lint-staged"
   },
   "dependencies": {
