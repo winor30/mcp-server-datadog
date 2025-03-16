@@ -1,5 +1,6 @@
+import { describe, it, expect } from 'vitest'
 import { Tool } from '@modelcontextprotocol/sdk/types.js'
-import { createToolSchema } from '../tool' // Import createToolSchema function
+import { createToolSchema } from '../../src/utils/tool'
 import { z } from 'zod'
 
 describe('createToolSchema', () => {
