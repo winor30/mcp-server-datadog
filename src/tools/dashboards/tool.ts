@@ -1,9 +1,9 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
-import { ListDashboardsZodSchema } from './schema'
+import { GetDashboardZodSchema, ListDashboardsZodSchema } from './schema'
 
-type DashboardsToolName = 'list_dashboards'
+type DashboardsToolName = 'list_dashboards' | 'get_dashboard'
 type DashboardsTool = ExtendedTool<DashboardsToolName>
 
 export const DASHBOARDS_TOOLS: DashboardsTool[] = [
@@ -11,6 +11,11 @@ export const DASHBOARDS_TOOLS: DashboardsTool[] = [
     ListDashboardsZodSchema,
     'list_dashboards',
     'Get list of dashboards from Datadog',
+  ),
+  createToolSchema(
+    GetDashboardZodSchema,
+    'get_dashboard',
+    'Get a dashboard from Datadog',
   ),
 ] as const
 
@@ -58,6 +63,24 @@ export const createDashboardsToolHandlers = (
           {
             type: 'text',
             text: `Dashboards: ${JSON.stringify(dashboards)}`,
+          },
+        ],
+      }
+    },
+    get_dashboard: async (request) => {
+      const { dashboardId } = GetDashboardZodSchema.parse(
+        request.params.arguments,
+      )
+
+      const response = await apiInstance.getDashboard({
+        dashboardId,
+      })
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Dashboard: ${JSON.stringify(response)}`,
           },
         ],
       }

@@ -57,7 +57,14 @@ MCP server for the Datadog API, enabling incident management and more.
      - `tags` (optional array): Filter dashboards by tags.
    - **Returns**: Array of dashboards with URL references.
 
-6. `get_metrics`
+6. `get_dashboard`
+
+   - Retrieve a specific dashboard from Datadog.
+   - **Inputs**:
+     - `dashboard_id` (string): ID of the dashboard to fetch.
+   - **Returns**: Dashboard details including title, widgets, etc.
+
+7. `get_metrics`
 
    - Retrieve metrics data from Datadog.
    - **Inputs**:
@@ -66,7 +73,7 @@ MCP server for the Datadog API, enabling incident management and more.
      - `to` (number): End time in epoch seconds.
    - **Returns**: Metrics data for the queried timeframe.
 
-7. `list_traces`
+8. `list_traces`
 
    - Retrieve a list of APM traces from Datadog.
    - **Inputs**:
@@ -79,7 +86,7 @@ MCP server for the Datadog API, enabling incident management and more.
      - `operation` (optional string): Filter by operation name.
    - **Returns**: Array of matching traces from Datadog APM.
 
-8. `list_hosts`
+9. `list_hosts`
 
    - Get list of hosts from Datadog.
    - **Inputs**:
@@ -93,14 +100,14 @@ MCP server for the Datadog API, enabling incident management and more.
      - `include_hosts_metadata` (optional boolean): Include host metadata (version, platform, etc).
    - **Returns**: Array of hosts with details including name, ID, aliases, apps, mute status, and more.
 
-9. `get_active_hosts_count`
+10. `get_active_hosts_count`
 
    - Get the total number of active hosts in Datadog.
    - **Inputs**:
      - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
    - **Returns**: Count of total active and up hosts.
 
-10. `mute_host`
+11. `mute_host`
 
     - Mute a host in Datadog.
     - **Inputs**:
@@ -110,14 +117,14 @@ MCP server for the Datadog API, enabling incident management and more.
       - `override` (optional boolean): If true and the host is already muted, replaces existing end time.
     - **Returns**: Success status and confirmation message.
 
-11. `unmute_host`
+12. `unmute_host`
 
     - Unmute a host in Datadog.
     - **Inputs**:
       - `hostname` (string): The name of the host to unmute.
     - **Returns**: Success status and confirmation message.
 
-12. `list_downtimes`
+13. `list_downtimes`
 
     - List scheduled downtimes from Datadog.
     - **Inputs**:
@@ -125,7 +132,7 @@ MCP server for the Datadog API, enabling incident management and more.
       - `monitorId` (optional number): Filter by monitor ID.
     - **Returns**: Array of scheduled downtimes with details including scope, monitor information, and schedule.
 
-13. `schedule_downtime`
+14. `schedule_downtime`
 
     - Schedule a downtime in Datadog.
     - **Inputs**:
@@ -143,7 +150,7 @@ MCP server for the Datadog API, enabling incident management and more.
         - `until` (optional number): UNIX timestamp for when the recurrence ends.
     - **Returns**: Scheduled downtime details including ID and active status.
 
-14. `cancel_downtime`
+15. `cancel_downtime`
     - Cancel a scheduled downtime in Datadog.
     - **Inputs**:
       - `downtimeId` (number): The ID of the downtime to cancel.
