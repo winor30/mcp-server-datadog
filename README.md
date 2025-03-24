@@ -102,10 +102,10 @@ MCP server for the Datadog API, enabling incident management and more.
 
 10. `get_active_hosts_count`
 
-   - Get the total number of active hosts in Datadog.
-   - **Inputs**:
-     - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
-   - **Returns**: Count of total active and up hosts.
+    - Get the total number of active hosts in Datadog.
+    - **Inputs**:
+      - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
+    - **Returns**: Count of total active and up hosts.
 
 11. `mute_host`
 
