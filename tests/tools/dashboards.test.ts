@@ -119,4 +119,88 @@ describe('Dashboards Tool', () => {
       server.close()
     })
   })
+
+  // https://docs.datadoghq.com/ja/api/latest/dashboards/#get-a-dashboard
+  describe.concurrent('get_dashboard', async () => {
+    it('should get a dashboard', async () => {
+      const dashboardId = '123456789'
+      const mockHandler = http.get(
+        `${dashboardEndpoint}/${dashboardId}`,
+        async () => {
+          return HttpResponse.json({
+            id: '123456789',
+            title: 'Dashboard',
+            layout_type: 'ordered',
+            widgets: [],
+          })
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_dashboard', {
+          dashboardId,
+        })
+        const response = (await toolHandlers.get_dashboard(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('123456789')
+        expect(response.content[0].text).toContain('Dashboard')
+        expect(response.content[0].text).toContain('ordered')
+      })()
+
+      server.close()
+    })
+
+    it('should handle not found errors', async () => {
+      const dashboardId = '999999999'
+      const mockHandler = http.get(
+        `${dashboardEndpoint}/${dashboardId}`,
+        async () => {
+          return HttpResponse.json({ errors: ['Not found'] }, { status: 404 })
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_dashboard', {
+          dashboardId,
+        })
+        await expect(toolHandlers.get_dashboard(request)).rejects.toThrow(
+          'Not found',
+        )
+      })()
+
+      server.close()
+    })
+
+    it('should handle server errors', async () => {
+      const dashboardId = '123456789'
+      const mockHandler = http.get(
+        `${dashboardEndpoint}/${dashboardId}`,
+        async () => {
+          return HttpResponse.json(
+            { errors: ['Internal server error'] },
+            { status: 500 },
+          )
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_dashboard', {
+          dashboardId,
+        })
+        await expect(toolHandlers.get_dashboard(request)).rejects.toThrow(
+          'Internal server error',
+        )
+      })()
+
+      server.close()
+    })
+  })
 })
