@@ -21,7 +21,10 @@ export const GetLogsZodSchema = z.object({
  * @param limit - Optional. Maximum number of logs to search through. Default is 1000.
  */
 export const GetAllServicesZodSchema = z.object({
-  query: z.string().default('*').describe('Optional query filter for log search'),
+  query: z
+    .string()
+    .default('*')
+    .describe('Optional query filter for log search'),
   from: z.number().describe('Start time in epoch seconds'),
   to: z.number().describe('End time in epoch seconds'),
   limit: z

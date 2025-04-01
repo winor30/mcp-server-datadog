@@ -57,7 +57,7 @@ export const createLogsToolHandlers = (
       ],
     }
   },
-  
+
   get_all_services: async (request) => {
     const { query, from, to, limit } = GetAllServicesZodSchema.parse(
       request.params.arguments,
@@ -84,7 +84,7 @@ export const createLogsToolHandlers = (
 
     // Extract unique services from logs
     const services = new Set<string>()
-    
+
     for (const log of response.data) {
       // Access service attribute from logs based on the Datadog API structure
       if (log.attributes && log.attributes.service) {

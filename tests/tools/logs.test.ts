@@ -264,17 +264,22 @@ describe('Logs Tool', () => {
         const response = (await toolHandlers.get_all_services(
           request,
         )) as unknown as DatadogToolResponse
-        
+
         expect(response.content[0].text).toContain('Services')
         // Check if response contains the expected services (sorted alphabetically)
         const expected = ['api-service', 'database-service', 'web-service']
-        expected.forEach(service => {
+        expected.forEach((service) => {
           expect(response.content[0].text).toContain(service)
         })
-        
+
         // Check that we've extracted unique services (no duplicates)
         const servicesText = response.content[0].text
-        const servicesJson = JSON.parse(servicesText.substring(servicesText.indexOf('['), servicesText.lastIndexOf(']') + 1))
+        const servicesJson = JSON.parse(
+          servicesText.substring(
+            servicesText.indexOf('['),
+            servicesText.lastIndexOf(']') + 1,
+          ),
+        )
         expect(servicesJson).toHaveLength(3) // Only 3 unique services, not 4
         expect(servicesJson).toEqual(expected)
       })()
@@ -327,13 +332,18 @@ describe('Logs Tool', () => {
         const response = (await toolHandlers.get_all_services(
           request,
         )) as unknown as DatadogToolResponse
-        
+
         expect(response.content[0].text).toContain('Services')
         expect(response.content[0].text).toContain('web-service')
-        
+
         // Ensure we only have one service (the one with a defined service attribute)
         const servicesText = response.content[0].text
-        const servicesJson = JSON.parse(servicesText.substring(servicesText.indexOf('['), servicesText.lastIndexOf(']') + 1))
+        const servicesJson = JSON.parse(
+          servicesText.substring(
+            servicesText.indexOf('['),
+            servicesText.lastIndexOf(']') + 1,
+          ),
+        )
         expect(servicesJson).toHaveLength(1)
       })()
 
@@ -362,7 +372,7 @@ describe('Logs Tool', () => {
         const response = (await toolHandlers.get_all_services(
           request,
         )) as unknown as DatadogToolResponse
-        
+
         expect(response.content[0].text).toContain('Services')
         expect(response.content[0].text).toContain('[]') // Empty array of services
       })()
