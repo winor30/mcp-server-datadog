@@ -35,29 +35,29 @@
     "lint-staged": "lint-staged"
   },
   "dependencies": {
-    "@datadog/datadog-api-client": "^1.32.0",
+    "@datadog/datadog-api-client": "^1.33.1",
     "@modelcontextprotocol/sdk": "0.6.0",
     "zod": "^3.24.2",
-    "zod-to-json-schema": "^3.24.3"
+    "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.0",
-    "@eslint/js": "^9.21.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.24.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.17.30",
     "@vitest/coverage-v8": "3.0.8",
-    "eslint": "^9.21.0",
+    "eslint": "^9.24.0",
     "globals": "^16.0.0",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
     "msw": "^2.7.3",
-    "prettier": "^3.5.2",
-    "ts-jest": "^29.2.6",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.3.1",
     "ts-node": "^10.9.2",
-    "tsup": "^8.3.6",
-    "typescript": "^5.3.3",
-    "typescript-eslint": "^8.24.1",
-    "vitest": "^3.0.8"
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.0",
+    "vitest": "^3.1.1"
   },
   "engines": {
     "node": ">=16.17.0"
