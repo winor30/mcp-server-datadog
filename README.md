@@ -64,7 +64,7 @@ MCP server for the Datadog API, enabling incident management and more.
      - `dashboard_id` (string): ID of the dashboard to fetch.
    - **Returns**: Dashboard details including title, widgets, etc.
 
-7. `get_metrics`
+7. `query_metrics`
 
    - Retrieve metrics data from Datadog.
    - **Inputs**:
