@@ -1,16 +1,16 @@
 import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
-import { GetMetricsZodSchema } from './schema'
+import { QueryMetricsZodSchema } from './schema'
 
-type MetricsToolName = 'get_metrics'
+type MetricsToolName = 'query_metrics'
 type MetricsTool = ExtendedTool<MetricsToolName>
 
 export const METRICS_TOOLS: MetricsTool[] = [
   createToolSchema(
-    GetMetricsZodSchema,
-    'get_metrics',
-    'Get metrics data from Datadog',
+    QueryMetricsZodSchema,
+    'query_metrics',
+    'Query timeseries points of metrics from Datadog',
   ),
 ] as const
 
@@ -20,8 +20,8 @@ export const createMetricsToolHandlers = (
   apiInstance: v1.MetricsApi,
 ): MetricsToolHandlers => {
   return {
-    get_metrics: async (request) => {
-      const { from, to, query } = GetMetricsZodSchema.parse(
+    query_metrics: async (request) => {
+      const { from, to, query } = QueryMetricsZodSchema.parse(
         request.params.arguments,
       )
 
@@ -35,7 +35,7 @@ export const createMetricsToolHandlers = (
         content: [
           {
             type: 'text',
-            text: `Metrics data: ${JSON.stringify({ response })}`,
+            text: `Queried metrics data: ${JSON.stringify({ response })}`,
           },
         ],
       }

@@ -86,11 +86,11 @@ describe('Metrics Tool', () => {
           to: 1641095000,
           query: 'avg:system.cpu.user{*}',
         })
-        const response = (await toolHandlers.get_metrics(
+        const response = (await toolHandlers.query_metrics(
           request,
         )) as unknown as DatadogToolResponse
 
-        expect(response.content[0].text).toContain('Metrics data:')
+        expect(response.content[0].text).toContain('Queried metrics data:')
         expect(response.content[0].text).toContain('system.cpu.user')
         expect(response.content[0].text).toContain('host:web-01')
         expect(response.content[0].text).toContain('host:web-02')
@@ -119,11 +119,11 @@ describe('Metrics Tool', () => {
           to: 1641095000,
           query: 'avg:non.existent.metric{*}',
         })
-        const response = (await toolHandlers.get_metrics(
+        const response = (await toolHandlers.query_metrics(
           request,
         )) as unknown as DatadogToolResponse
 
-        expect(response.content[0].text).toContain('Metrics data:')
+        expect(response.content[0].text).toContain('Queried metrics data:')
         expect(response.content[0].text).toContain('series":[]')
       })()
 
@@ -147,7 +147,7 @@ describe('Metrics Tool', () => {
           to: 1641095000,
           query: 'invalid:query:format',
         })
-        const response = (await toolHandlers.get_metrics(
+        const response = (await toolHandlers.query_metrics(
           request,
         )) as unknown as DatadogToolResponse
 
@@ -174,7 +174,7 @@ describe('Metrics Tool', () => {
           to: 1641095000,
           query: 'avg:system.cpu.user{*}',
         })
-        await expect(toolHandlers.get_metrics(request)).rejects.toThrow()
+        await expect(toolHandlers.query_metrics(request)).rejects.toThrow()
       })()
 
       server.close()
@@ -196,7 +196,7 @@ describe('Metrics Tool', () => {
           to: 1641095000,
           query: 'avg:system.cpu.user{*}',
         })
-        await expect(toolHandlers.get_metrics(request)).rejects.toThrow(
+        await expect(toolHandlers.query_metrics(request)).rejects.toThrow(
           'Rate limit exceeded',
         )
       })()
@@ -221,7 +221,7 @@ describe('Metrics Tool', () => {
           to: 1700000000, // Very recent date
           query: 'avg:system.cpu.user{*}',
         })
-        await expect(toolHandlers.get_metrics(request)).rejects.toThrow(
+        await expect(toolHandlers.query_metrics(request)).rejects.toThrow(
           'Time range exceeds allowed limit',
         )
       })()
