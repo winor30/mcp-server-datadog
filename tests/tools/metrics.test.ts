@@ -24,7 +24,7 @@ describe('Metrics Tool', () => {
   const toolHandlers = createMetricsToolHandlers(apiInstance)
 
   // https://docs.datadoghq.com/api/latest/metrics/#query-timeseries-data-across-multiple-products
-  describe.concurrent('get_metrics', async () => {
+  describe.concurrent('query_metrics', async () => {
     it('should query metrics data', async () => {
       const mockHandler = http.get(metricsEndpoint, async () => {
         return HttpResponse.json({
@@ -81,7 +81,7 @@ describe('Metrics Tool', () => {
       const server = setupServer(mockHandler)
 
       await server.boundary(async () => {
-        const request = createMockToolRequest('get_metrics', {
+        const request = createMockToolRequest('query_metrics', {
           from: 1640995000,
           to: 1641095000,
           query: 'avg:system.cpu.user{*}',
@@ -114,7 +114,7 @@ describe('Metrics Tool', () => {
       const server = setupServer(mockHandler)
 
       await server.boundary(async () => {
-        const request = createMockToolRequest('get_metrics', {
+        const request = createMockToolRequest('query_metrics', {
           from: 1640995000,
           to: 1641095000,
           query: 'avg:non.existent.metric{*}',
@@ -142,7 +142,7 @@ describe('Metrics Tool', () => {
       const server = setupServer(mockHandler)
 
       await server.boundary(async () => {
-        const request = createMockToolRequest('get_metrics', {
+        const request = createMockToolRequest('query_metrics', {
           from: 1640995000,
           to: 1641095000,
           query: 'invalid:query:format',
@@ -169,7 +169,7 @@ describe('Metrics Tool', () => {
       const server = setupServer(mockHandler)
 
       await server.boundary(async () => {
-        const request = createMockToolRequest('get_metrics', {
+        const request = createMockToolRequest('query_metrics', {
           from: 1640995000,
           to: 1641095000,
           query: 'avg:system.cpu.user{*}',
@@ -191,7 +191,7 @@ describe('Metrics Tool', () => {
       const server = setupServer(mockHandler)
 
       await server.boundary(async () => {
-        const request = createMockToolRequest('get_metrics', {
+        const request = createMockToolRequest('query_metrics', {
           from: 1640995000,
           to: 1641095000,
           query: 'avg:system.cpu.user{*}',
@@ -216,7 +216,7 @@ describe('Metrics Tool', () => {
 
       await server.boundary(async () => {
         // Using a very large time range that might exceed limits
-        const request = createMockToolRequest('get_metrics', {
+        const request = createMockToolRequest('query_metrics', {
           from: 1600000000, // Very old date
           to: 1700000000, // Very recent date
           query: 'avg:system.cpu.user{*}',
