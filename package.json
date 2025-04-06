@@ -60,7 +60,8 @@
     "vitest": "^3.1.1"
   },
   "engines": {
-    "node": ">=16.17.0"
+    "node": ">=20.x",
+    "pnpm": ">=10"
   },
   "lint-staged": {
     "*.{js,ts}": [
