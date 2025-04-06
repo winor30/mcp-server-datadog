@@ -2,7 +2,7 @@
 FROM node:22.12-alpine AS builder
 
 # Install pnpm globally
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN pnpm build
 FROM node:22.12-alpine AS installer
 
 # Install pnpm globally
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 WORKDIR /app
 
