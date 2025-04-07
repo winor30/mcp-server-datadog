@@ -151,10 +151,55 @@ MCP server for the Datadog API, enabling incident management and more.
     - **Returns**: Scheduled downtime details including ID and active status.
 
 15. `cancel_downtime`
+
     - Cancel a scheduled downtime in Datadog.
     - **Inputs**:
       - `downtimeId` (number): The ID of the downtime to cancel.
     - **Returns**: Confirmation of downtime cancellation.
+
+16. `get_rum_applications`
+
+    - Get all RUM applications in the organization.
+    - **Inputs**: None.
+    - **Returns**: List of RUM applications.
+
+17. `get_rum_events`
+
+    - Search and retrieve RUM events from Datadog.
+    - **Inputs**:
+      - `query` (string): Datadog RUM query string.
+      - `from` (number): Start time in epoch seconds.
+      - `to` (number): End time in epoch seconds.
+      - `limit` (optional number): Maximum number of events to return (default: 100).
+    - **Returns**: Array of RUM events.
+
+18. `get_rum_grouped_event_count`
+
+    - Search, group and count RUM events by a specified dimension.
+    - **Inputs**:
+      - `query` (optional string): Additional query filter for RUM search (default: "\*").
+      - `from` (number): Start time in epoch seconds.
+      - `to` (number): End time in epoch seconds.
+      - `groupBy` (optional string): Dimension to group results by (default: "application.name").
+    - **Returns**: Grouped event counts.
+
+19. `get_rum_page_performance`
+
+    - Get page (view) performance metrics from RUM data.
+    - **Inputs**:
+      - `query` (optional string): Additional query filter for RUM search (default: "\*").
+      - `from` (number): Start time in epoch seconds.
+      - `to` (number): End time in epoch seconds.
+      - `metricNames` (array of strings): Array of metric names to retrieve (e.g., 'view.load_time', 'view.first_contentful_paint').
+    - **Returns**: Performance metrics including average, min, max, and count for each metric.
+
+20. `get_rum_page_waterfall`
+
+    - Retrieve RUM page (view) waterfall data filtered by application name and session ID.
+    - **Inputs**:
+      - `applicationName` (string): Application name to filter events.
+      - `sessionId` (string): Session ID to filter events.
+    - **Returns**: Waterfall data for the specified application and session.
 
 ## Setup
 
