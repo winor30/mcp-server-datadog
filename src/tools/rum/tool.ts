@@ -203,13 +203,10 @@ export const createRumToolHandlers = (
           continue
         }
 
-        const value = metricNameParts.reduce((acc, part) => {
-          if (acc == null) {
-            return undefined
-          }
-
-          return acc[part]
-        }, event.attributes.attributes)
+        const value = metricNameParts.reduce(
+          (acc, part) => (acc ? acc[part] : undefined),
+          event.attributes.attributes,
+        )
 
         // If we found a numeric value, add it to the metrics
         if (typeof value === 'number') {
