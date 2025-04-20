@@ -142,7 +142,7 @@ describe('RUM Tools', () => {
   })
 
   describe.concurrent('get_rum_grouped_event_count', async () => {
-    it('should retrieve grouped event counts', async () => {
+    it('should retrieve grouped event counts by application name', async () => {
       const server = getCommonServer()
       await server.boundary(async () => {
         const request = createMockToolRequest('get_rum_grouped_event_count', {
@@ -157,6 +157,172 @@ describe('RUM Tools', () => {
 
         expect(response.content[0].text).toContain(
           'Session counts (grouped by application.name): {"Application 1":2,"Application 2":1}',
+        )
+      })()
+
+      server.close()
+    })
+
+    it('should handle custom query filter', async () => {
+      const server = getCommonServer()
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_rum_grouped_event_count', {
+          query: '@application.name:Application 1',
+          from: 1640995100,
+          to: 1640995200,
+          groupBy: 'application.name',
+        })
+        const response = (await toolHandlers.get_rum_grouped_event_count(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain(
+          'Session counts (grouped by application.name):',
+        )
+        expect(response.content[0].text).toContain('"Application 1":2')
+      })()
+
+      server.close()
+    })
+
+    it('should handle deeper nested path for groupBy', async () => {
+      const server = getCommonServer()
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_rum_grouped_event_count', {
+          query: '*',
+          from: 1640995100,
+          to: 1640995200,
+          groupBy: 'view.load_time',
+        })
+        const response = (await toolHandlers.get_rum_grouped_event_count(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain(
+          'Session counts (grouped by view.load_time):',
+        )
+        expect(response.content[0].text).toContain('"123":1')
+        expect(response.content[0].text).toContain('"789":1')
+        expect(response.content[0].text).toContain('"234":1')
+      })()
+
+      server.close()
+    })
+
+    it('should handle invalid groupBy path gracefully', async () => {
+      const server = getCommonServer()
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_rum_grouped_event_count', {
+          query: '*',
+          from: 1640995100,
+          to: 1640995200,
+          groupBy: 'nonexistent.path',
+        })
+        const response = (await toolHandlers.get_rum_grouped_event_count(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain(
+          'Session counts (grouped by nonexistent.path): {"unknown":3}',
+        )
+      })()
+
+      server.close()
+    })
+
+    it('should handle empty data response', async () => {
+      const server = setupServer(
+        http.get(`${baseUrl}/v2/rum/events`, async () => {
+          return HttpResponse.json({
+            data: [],
+          })
+        }),
+      )
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_rum_grouped_event_count', {
+          query: '*',
+          from: 1640995100,
+          to: 1640995200,
+          groupBy: 'application.name',
+        })
+        const response = (await toolHandlers.get_rum_grouped_event_count(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain(
+          'Session counts (grouped by application.name): {}',
+        )
+      })()
+
+      server.close()
+    })
+
+    it('should handle null data response', async () => {
+      const server = setupServer(
+        http.get(`${baseUrl}/v2/rum/events`, async () => {
+          return HttpResponse.json({
+            data: null,
+          })
+        }),
+      )
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_rum_grouped_event_count', {
+          query: '*',
+          from: 1640995100,
+          to: 1640995200,
+          groupBy: 'application.name',
+        })
+        await expect(
+          toolHandlers.get_rum_grouped_event_count(request),
+        ).rejects.toThrow('No RUM events data returned')
+      })()
+
+      server.close()
+    })
+
+    it('should handle events without attributes field', async () => {
+      const server = setupServer(
+        http.get(`${baseUrl}/v2/rum/events`, async () => {
+          return HttpResponse.json({
+            data: [
+              {
+                id: 'event1',
+                // Missing attributes field
+              },
+              {
+                id: 'event2',
+                attributes: {
+                  // Missing attributes.attributes field
+                },
+              },
+              {
+                id: 'event3',
+                attributes: {
+                  attributes: {
+                    application: {
+                      name: 'Application 3',
+                    },
+                    // Missing session field
+                  },
+                },
+              },
+            ],
+          })
+        }),
+      )
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_rum_grouped_event_count', {
+          query: '*',
+          from: 1640995100,
+          to: 1640995200,
+          groupBy: 'application.name',
+        })
+        const response = (await toolHandlers.get_rum_grouped_event_count(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain(
+          'Session counts (grouped by application.name): {"Application 3":0}',
         )
       })()
 
