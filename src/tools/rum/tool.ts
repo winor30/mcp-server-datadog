@@ -118,39 +118,29 @@ export const createRumToolHandlers = (
     const sessions = new Map<string, Set<string>>()
 
     for (const event of response.data) {
-      if (event.attributes?.attributes) {
-        // Get the group value (default to 'unknown' if not found)
-        let groupValue = 'unknown'
+      if (!event.attributes?.attributes) {
+        continue
+      }
 
-        // Parse the groupBy path (e.g., 'application.id')
-        let current = event.attributes.attributes
-        const groupPath = groupBy.split('.') as Array<
-          keyof typeof event.attributes.attributes
-        >
-        let foundPath = true
+      // Parse the groupBy path (e.g., 'application.id')
+      const groupPath = groupBy.split('.') as Array<
+        keyof typeof event.attributes.attributes
+      >
 
-        for (const pathPart of groupPath) {
-          if (current[pathPart] !== undefined) {
-            current = current[pathPart] as v2.RUMEventAttributes
-          } else {
-            foundPath = false
-            break
-          }
-        }
+      const result = getValueByPath(
+        event.attributes.attributes,
+        groupPath.map((path) => String(path)),
+      )
+      const groupValue = result.found ? String(result.value) : 'unknown'
 
-        if (foundPath) {
-          groupValue = String(current)
-        }
+      // Get or create the session set for this group
+      if (!sessions.has(groupValue)) {
+        sessions.set(groupValue, new Set<string>())
+      }
 
-        // Get or create the session set for this group
-        if (!sessions.has(groupValue)) {
-          sessions.set(groupValue, new Set<string>())
-        }
-
-        // Add the session ID to the set if it exists
-        if (event.attributes.attributes.session?.id) {
-          sessions.get(groupValue)?.add(event.attributes.attributes.session.id)
-        }
+      // Add the session ID to the set if it exists
+      if (event.attributes.attributes.session?.id) {
+        sessions.get(groupValue)?.add(event.attributes.attributes.session.id)
       }
     }
 
@@ -276,3 +266,27 @@ export const createRumToolHandlers = (
     }
   },
 })
+
+// Get the group value using a recursive function approach
+const getValueByPath = (
+  obj: Record<string, unknown>,
+  path: string[],
+  index = 0,
+): { value: unknown; found: boolean } => {
+  if (index >= path.length) {
+    return { value: obj, found: true }
+  }
+
+  const key = path[index]
+  const typedObj = obj as Record<string, unknown>
+
+  if (typedObj[key] === undefined) {
+    return { value: null, found: false }
+  }
+
+  return getValueByPath(
+    typedObj[key] as Record<string, unknown>,
+    path,
+    index + 1,
+  )
+}
