@@ -179,34 +179,41 @@ export const createRumToolHandlers = (
     }
 
     // Extract and calculate performance metrics
-    const metrics: Record<string, number[]> = {}
-    metricNames.forEach((name) => {
-      metrics[name] = []
-    })
+    const metrics: Record<string, number[]> = metricNames.reduce(
+      (acc, name) => {
+        acc[name] = []
+        return acc
+      },
+      {} as Record<string, number[]>,
+    )
 
     for (const event of response.data) {
-      if (event.attributes?.attributes) {
-        // Collect each requested metric if it exists
-        for (const metricName of metricNames) {
-          // Handle nested properties like 'view.load_time'
-          const parts = metricName.split('.') as Array<
-            keyof typeof event.attributes.attributes
-          >
-          let value = event.attributes.attributes
+      if (!event.attributes?.attributes) {
+        continue
+      }
 
-          for (let i = 0; i < parts.length; i++) {
-            if (value && value[parts[i]] !== undefined) {
-              value = value[parts[i]]
-            } else {
-              value = {}
-              break
-            }
+      // Collect each requested metric if it exists
+      for (const metricName of metricNames) {
+        // Handle nested properties like 'view.load_time'
+        const metricNameParts = metricName.split('.') as Array<
+          keyof typeof event.attributes.attributes
+        >
+
+        if (event.attributes.attributes == null) {
+          continue
+        }
+
+        const value = metricNameParts.reduce((acc, part) => {
+          if (acc == null) {
+            return undefined
           }
 
-          // If we found a numeric value, add it to the metrics
-          if (typeof value === 'number') {
-            metrics[metricName].push(value)
-          }
+          return acc[part]
+        }, event.attributes.attributes)
+
+        // If we found a numeric value, add it to the metrics
+        if (typeof value === 'number') {
+          metrics[metricName].push(value)
         }
       }
     }
@@ -215,21 +222,26 @@ export const createRumToolHandlers = (
     const results: Record<
       string,
       { avg: number; min: number; max: number; count: number }
-    > = {}
-
-    for (const [name, values] of Object.entries(metrics)) {
-      if (values.length > 0) {
-        const sum = values.reduce((a, b) => a + b, 0)
-        results[name] = {
-          avg: sum / values.length,
-          min: Math.min(...values),
-          max: Math.max(...values),
-          count: values.length,
+    > = Object.entries(metrics).reduce(
+      (acc, [name, values]) => {
+        if (values.length > 0) {
+          const sum = values.reduce((a, b) => a + b, 0)
+          acc[name] = {
+            avg: sum / values.length,
+            min: Math.min(...values),
+            max: Math.max(...values),
+            count: values.length,
+          }
+        } else {
+          acc[name] = { avg: 0, min: 0, max: 0, count: 0 }
         }
-      } else {
-        results[name] = { avg: 0, min: 0, max: 0, count: 0 }
-      }
-    }
+        return acc
+      },
+      {} as Record<
+        string,
+        { avg: number; min: number; max: number; count: number }
+      >,
+    )
 
     return {
       content: [
