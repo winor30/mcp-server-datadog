@@ -192,6 +192,90 @@ describe('Monitors Tool', () => {
       server.close()
     })
 
+    it('should handle pagination', async () => {
+      const mockHandler = http.get(monitorsEndpoint, async (info) => {
+        const url = new URL(info.request.url)
+        const page = parseInt(url.searchParams.get('page') || '0')
+        const pageSize = parseInt(url.searchParams.get('page_size') || '100')
+
+        // Generate mock data based on pagination parameters
+        const monitors = Array.from({ length: pageSize }, (_, i) => ({
+          id: page * pageSize + i + 1,
+          name: `Monitor ${page * pageSize + i + 1}`,
+          type: 'metric alert',
+          overall_state: 'OK',
+          tags: ['env:test'],
+          query: 'avg(last_5m):avg:system.cpu.user{*} > 80',
+        }))
+
+        return HttpResponse.json(monitors)
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_monitors', {
+          page: 1,
+          pageSize: 50,
+        })
+        const response = (await toolHandlers.get_monitors(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        // Check pagination results
+        const monitors = JSON.parse(
+          response.content[0].text.replace('Monitors: ', ''),
+        )
+        expect(monitors.length).toBe(50)
+        expect(monitors[0].id).toBe(51) // First ID on page 1 with pageSize 50
+        expect(monitors[49].id).toBe(100) // Last ID on page 1 with pageSize 50
+        expect(response.content[2].text).toBe('Last monitor ID: 100')
+      })()
+
+      server.close()
+    })
+
+    it('should handle id offset', async () => {
+      const mockHandler = http.get(monitorsEndpoint, async (info) => {
+        const url = new URL(info.request.url)
+        const idOffset = parseInt(url.searchParams.get('id_offset') || '0')
+
+        // Generate mock data starting from id_offset
+        const monitors = Array.from({ length: 3 }, (_, i) => ({
+          id: idOffset + i + 1,
+          name: `Monitor ${idOffset + i + 1}`,
+          type: 'metric alert',
+          overall_state: 'OK',
+          tags: ['env:test'],
+          query: 'avg(last_5m):avg:system.cpu.user{*} > 80',
+        }))
+
+        return HttpResponse.json(monitors)
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_monitors', {
+          idOffset: 100,
+        })
+        const response = (await toolHandlers.get_monitors(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        // Check id offset results
+        const monitors = JSON.parse(
+          response.content[0].text.replace('Monitors: ', ''),
+        )
+        expect(monitors.length).toBe(3)
+        expect(monitors[0].id).toBe(101) // First ID after offset 100
+        expect(monitors[2].id).toBe(103) // Last ID
+        expect(response.content[2].text).toBe('Last monitor ID: 103')
+      })()
+
+      server.close()
+    })
+
     it('should handle null response', async () => {
       const mockHandler = http.get(monitorsEndpoint, async () => {
         return HttpResponse.json(null)

@@ -23,14 +23,16 @@ export const createMonitorsToolHandlers = (
 ): MonitorsToolHandlers => {
   return {
     get_monitors: async (request) => {
-      const { groupStates, name, tags } = GetMonitorsZodSchema.parse(
-        request.params.arguments,
-      )
+      const { groupStates, name, tags, idOffset, page, pageSize } =
+        GetMonitorsZodSchema.parse(request.params.arguments)
 
       const response = await apiInstance.listMonitors({
         groupStates: groupStates?.join(','),
         name,
         tags: tags?.join(','),
+        page,
+        pageSize,
+        idOffset,
       })
 
       if (response == null) {
@@ -105,6 +107,14 @@ export const createMonitorsToolHandlers = (
             type: 'text',
             text: `Summary of monitors: ${JSON.stringify(summary)}`,
           },
+          ...(monitors.length > 0
+            ? [
+                {
+                  type: 'text',
+                  text: `Last monitor ID: ${monitors[monitors.length - 1].id}`,
+                },
+              ]
+            : []),
         ],
       }
     },
