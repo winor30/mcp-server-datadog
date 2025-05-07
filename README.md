@@ -39,6 +39,9 @@ MCP server for the Datadog API, enabling incident management and more.
      - `groupStates` (optional array): States to filter (e.g., alert, warn, no data, ok).
      - `name` (optional string): Filter by name.
      - `tags` (optional array): Filter by tags.
+     - `idOffset` (optional number): Start listing from this monitor ID. Use with pageSize=1 to get a specific monitor.
+     - `page` (optional number): Page number for pagination (0-based).
+     - `pageSize` (optional number): Number of monitors per page (default: 100).
    - **Returns**: Monitors data and a summary of their statuses.
 
 4. `get_logs`
