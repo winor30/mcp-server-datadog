@@ -34,6 +34,7 @@ describe('createDatadogConfig', () => {
       'datadoghq.com',
     )
   })
+})
 
 describe('createDatadogConfig', () => {
   it('should create a datadog config with custom subdomain when DATADOG_SUBDOMAIN is configured', () => {
