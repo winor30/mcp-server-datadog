@@ -61,9 +61,7 @@ describe('createDatadogConfig', () => {
       apiKeyAuth: new ApiKeyAuthAuthentication('test-api-key'),
       appKeyAuth: new AppKeyAuthAuthentication('test-app-key'),
     })
-    expect(datadogConfig.servers[0]?.getConfiguration()?.subdomain).toBe(
-      'api',
-    )
+    expect(datadogConfig.servers[0]?.getConfiguration()?.subdomain).toBe('api')
   })
 
   it('should throw an error when DATADOG_API_KEY are not configured', () => {

@@ -17,11 +17,11 @@ startCommand:
         description: Your Datadog Application key
       datadogSite:
         type: string
-        default: ""
+        default: ''
         description: Optional Datadog site (e.g. datadoghq.eu)
       datadogSubdomain:
         type: string
-        default: ""
+        default: ''
         description: Optional Datadog subdomain (e.g. <your-subdomain>.datadoghq.com)
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
