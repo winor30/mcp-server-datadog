@@ -8,6 +8,7 @@ import {
   GetRumPagePerformanceZodSchema,
   GetRumPageWaterfallZodSchema,
 } from './schema'
+import { adjustTimestamps } from '../../utils/adjustTimestamps'
 
 type RumToolName =
   | 'get_rum_events'
@@ -74,10 +75,22 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
+    const adjusted = adjustTimestamps(from, to)
+    if (!adjusted.ok) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `RUM events data: ${[]}`,
+          },
+        ],
+      }
+    }
+
     const response = await apiInstance.listRUMEvents({
       filterQuery: query,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
+      filterFrom: new Date(adjusted.from * 1000),
+      filterTo: new Date(adjusted.to * 1000),
       sort: 'timestamp',
       pageLimit: limit,
     })
@@ -101,11 +114,23 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
+    const adjusted = adjustTimestamps(from, to)
+    if (!adjusted.ok) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `RUM grouped event count: ${[]}`,
+          },
+        ],
+      }
+    }
+
     // For session counts, we need to use a query to count unique sessions
     const response = await apiInstance.listRUMEvents({
       filterQuery: query !== '*' ? query : undefined,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
+      filterFrom: new Date(adjusted.from * 1000),
+      filterTo: new Date(adjusted.to * 1000),
       sort: 'timestamp',
       pageLimit: 2000,
     })
@@ -163,13 +188,25 @@ export const createRumToolHandlers = (
     const { query, from, to, metricNames } =
       GetRumPagePerformanceZodSchema.parse(request.params.arguments)
 
+    const adjusted = adjustTimestamps(from, to)
+    if (!adjusted.ok) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Page performance metrics: ${[]}`,
+          },
+        ],
+      }
+    }
+
     // Build a query that focuses on view events with performance metrics
     const viewQuery = query !== '*' ? `@type:view ${query}` : '@type:view'
 
     const response = await apiInstance.listRUMEvents({
       filterQuery: viewQuery,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
+      filterFrom: new Date(adjusted.from * 1000),
+      filterTo: new Date(adjusted.to * 1000),
       sort: 'timestamp',
       pageLimit: 2000,
     })

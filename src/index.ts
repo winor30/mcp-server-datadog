@@ -66,8 +66,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   }
 })
 
-if (!process.env.DATADOG_API_KEY || !process.env.DATADOG_APP_KEY) {
-  throw new Error('DATADOG_API_KEY and DATADOG_APP_KEY must be set')
+if (
+  !process.env.DATADOG_API_KEY ||
+  !process.env.DATADOG_APP_KEY ||
+  !process.env.DATADOG_EVAL_TIMESTAMP
+) {
+  throw new Error(
+    '[MCP Eval Version] DATADOG_API_KEY and DATADOG_APP_KEY and DATADOG_EVAL_TIMESTAMP must be set',
+  )
 }
 
 const datadogConfig = createDatadogConfig({

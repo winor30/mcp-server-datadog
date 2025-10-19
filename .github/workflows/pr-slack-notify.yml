@@ -1,0 +1,10 @@
+name: PR Review Notifications
+
+on:
+  pull_request:
+    types: [review_requested]
+
+jobs:
+  call-slack-notifier:
+    uses: anyshift-io/custom_github_actions/.github/workflows/slack-pr-reviewer-notify.yml@main
+    secrets: inherit
