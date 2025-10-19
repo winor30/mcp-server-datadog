@@ -2,6 +2,7 @@ import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v2 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { GetLogsZodSchema, GetAllServicesZodSchema } from './schema'
+import { adjustTimestamps } from '../../utils/adjustTimestamps'
 
 type LogsToolName = 'get_logs' | 'get_all_services'
 type LogsTool = ExtendedTool<LogsToolName>
@@ -29,13 +30,26 @@ export const createLogsToolHandlers = (
       request.params.arguments,
     )
 
+    const adjusted = adjustTimestamps(from, to)
+
+    if (!adjusted.ok) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Logs data: ${[]}`,
+          },
+        ],
+      }
+    }
+
     const response = await apiInstance.listLogs({
       body: {
         filter: {
           query,
           // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
-          from: `${from * 1000}`,
-          to: `${to * 1000}`,
+          from: `${adjusted.from * 1000}`,
+          to: `${adjusted.to * 1000}`,
         },
         page: {
           limit,
@@ -63,13 +77,26 @@ export const createLogsToolHandlers = (
       request.params.arguments,
     )
 
+    const adjusted = adjustTimestamps(from, to)
+
+    if (!adjusted.ok) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Services: ${[]}`,
+          },
+        ],
+      }
+    }
+
     const response = await apiInstance.listLogs({
       body: {
         filter: {
           query,
           // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
-          from: `${from * 1000}`,
-          to: `${to * 1000}`,
+          from: `${adjusted.from * 1000}`,
+          to: `${adjusted.to * 1000}`,
         },
         page: {
           limit,

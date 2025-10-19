@@ -2,6 +2,7 @@ import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { QueryMetricsZodSchema } from './schema'
+import { adjustTimestamps } from '../../utils/adjustTimestamps'
 
 type MetricsToolName = 'query_metrics'
 type MetricsTool = ExtendedTool<MetricsToolName>
@@ -25,9 +26,22 @@ export const createMetricsToolHandlers = (
         request.params.arguments,
       )
 
+      const adjusted = adjustTimestamps(from, to)
+
+      if (!adjusted.ok) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Metrics data: ${[]}`,
+            },
+          ],
+        }
+      }
+
       const response = await apiInstance.queryMetrics({
-        from,
-        to,
+        from: adjusted.from,
+        to: adjusted.to,
         query,
       })
 
