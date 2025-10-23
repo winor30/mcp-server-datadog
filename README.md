@@ -4,204 +4,48 @@
 
 ![NPM Version](https://img.shields.io/npm/v/%40winor30%2Fmcp-server-datadog)![Build and Test](https://github.com/winor30/mcp-server-datadog/actions/workflows/ci.yml/badge.svg)[![codecov](https://codecov.io/gh/winor30/mcp-server-datadog/graph/badge.svg?token=BG4ZB74X92)](https://codecov.io/gh/winor30/mcp-server-datadog)[![smithery badge](https://smithery.ai/badge/@winor30/mcp-server-datadog)](https://smithery.ai/server/@winor30/mcp-server-datadog)
 
-MCP server for the Datadog API, enabling incident management and more.
+An MCP server that enables AI assistants to access and analyze Datadog monitoring data, manage incidents, and perform root cause analysis.
 
 <a href="https://glama.ai/mcp/servers/bu8gtzkwfr">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/bu8gtzkwfr/badge" alt="mcp-server-datadog MCP server" />
 </a>
 
+## Quick Start
+
+1. **Install**: `npx -y @smithery/cli install @winor30/mcp-server-datadog --client claude`
+2. **Configure**: Add your Datadog credentials (see [Setup](#setup))
+3. **Use**: Start asking your AI assistant questions about your Datadog environment
+
+## Usage Examples
+
+Ask your AI assistant questions about your Datadog environment:
+
+- **Incidents** - "Show me active incidents" or "Get details on incident X"
+- **Monitors** -
+  - "Which monitors are in alert state?"
+  - "Show active monitor alerts with the tag env:prod"
+  - "Show active monitor alerts with the tag env:prod and priority P2 (high)."
+- **Logs** - "Find error logs from the past hour" or "Show authentication failures in service Z"
+- **Metrics** - "What's the CPU usage trend?" or "Graph memory consumption for host A"
+- **Dashboards** - "List dashboards for service B" or "Show me dashboard X"
+- **Traces** - "Find slow requests in the payment service" or "Show me trace performance by endpoint"
+- **Hosts** - "List problematic hosts" or "Is host C experiencing issues?"
+- **RUM** - "What's the page load time for our checkout page?" or "Show performance metrics for our mobile app"
+- **Root Cause Analysis** - "Investigate alert from monitor X" or "Find what's causing these errors"
+
+For advanced root cause analysis capabilities, see these dedicated guides:
+
+- [**Root Cause Analysis Guide**](README-ROOTCAUSE.md) - Detailed instructions on using investigation chains for systematic troubleshooting. Includes practical examples for investigating monitor alerts, error logs, and performance regressions. Learn how to automate multi-step analysis workflows to efficiently find the root cause of issues.
+
+- [**RCA Features Documentation**](README-RCA.md) - Comprehensive overview of advanced pattern analysis, anomaly detection, and SLO monitoring capabilities. Contains example queries, usage scenarios, and implementation details for extracting insights from your monitoring data.
+
 ## Features
 
-- **Observability Tools**: Provides a mechanism to leverage key Datadog monitoring features, such as incidents, monitors, logs, dashboards, and metrics, through the MCP server.
-- **Extensible Design**: Designed to easily integrate with additional Datadog APIs, allowing for seamless future feature expansion.
-
-## Tools
-
-1. `list_incidents`
-
-   - Retrieve a list of incidents from Datadog.
-   - **Inputs**:
-     - `filter` (optional string): Filter parameters for incidents (e.g., status, priority).
-     - `pagination` (optional object): Pagination details like page size/offset.
-   - **Returns**: Array of Datadog incidents and associated metadata.
-
-2. `get_incident`
-
-   - Retrieve detailed information about a specific Datadog incident.
-   - **Inputs**:
-     - `incident_id` (string): Incident ID to fetch details for.
-   - **Returns**: Detailed incident information (title, status, timestamps, etc.).
-
-3. `get_monitors`
-
-   - Fetch the status of Datadog monitors.
-   - **Inputs**:
-     - `groupStates` (optional array): States to filter (e.g., alert, warn, no data, ok).
-     - `name` (optional string): Filter by name.
-     - `tags` (optional array): Filter by tags.
-   - **Returns**: Monitors data and a summary of their statuses.
-
-4. `get_logs`
-
-   - Search and retrieve logs from Datadog.
-   - **Inputs**:
-     - `query` (string): Datadog logs query string.
-     - `from` (number): Start time in epoch seconds.
-     - `to` (number): End time in epoch seconds.
-     - `limit` (optional number): Maximum number of logs to return (defaults to 100).
-   - **Returns**: Array of matching logs.
-
-5. `list_dashboards`
-
-   - Get a list of dashboards from Datadog.
-   - **Inputs**:
-     - `name` (optional string): Filter dashboards by name.
-     - `tags` (optional array): Filter dashboards by tags.
-   - **Returns**: Array of dashboards with URL references.
-
-6. `get_dashboard`
-
-   - Retrieve a specific dashboard from Datadog.
-   - **Inputs**:
-     - `dashboard_id` (string): ID of the dashboard to fetch.
-   - **Returns**: Dashboard details including title, widgets, etc.
-
-7. `query_metrics`
-
-   - Retrieve metrics data from Datadog.
-   - **Inputs**:
-     - `query` (string): Metrics query string.
-     - `from` (number): Start time in epoch seconds.
-     - `to` (number): End time in epoch seconds.
-   - **Returns**: Metrics data for the queried timeframe.
-
-8. `list_traces`
-
-   - Retrieve a list of APM traces from Datadog.
-   - **Inputs**:
-     - `query` (string): Datadog APM trace query string.
-     - `from` (number): Start time in epoch seconds.
-     - `to` (number): End time in epoch seconds.
-     - `limit` (optional number): Maximum number of traces to return (defaults to 100).
-     - `sort` (optional string): Sort order for traces (defaults to '-timestamp').
-     - `service` (optional string): Filter by service name.
-     - `operation` (optional string): Filter by operation name.
-   - **Returns**: Array of matching traces from Datadog APM.
-
-9. `list_hosts`
-
-   - Get list of hosts from Datadog.
-   - **Inputs**:
-     - `filter` (optional string): Filter string for search results.
-     - `sort_field` (optional string): Field to sort hosts by.
-     - `sort_dir` (optional string): Sort direction (asc/desc).
-     - `start` (optional number): Starting offset for pagination.
-     - `count` (optional number): Max number of hosts to return (max: 1000).
-     - `from` (optional number): Search hosts from this UNIX timestamp.
-     - `include_muted_hosts_data` (optional boolean): Include muted hosts status and expiry.
-     - `include_hosts_metadata` (optional boolean): Include host metadata (version, platform, etc).
-   - **Returns**: Array of hosts with details including name, ID, aliases, apps, mute status, and more.
-
-10. `get_active_hosts_count`
-
-    - Get the total number of active hosts in Datadog.
-    - **Inputs**:
-      - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
-    - **Returns**: Count of total active and up hosts.
-
-11. `mute_host`
-
-    - Mute a host in Datadog.
-    - **Inputs**:
-      - `hostname` (string): The name of the host to mute.
-      - `message` (optional string): Message to associate with the muting of this host.
-      - `end` (optional number): POSIX timestamp for when the mute should end.
-      - `override` (optional boolean): If true and the host is already muted, replaces existing end time.
-    - **Returns**: Success status and confirmation message.
-
-12. `unmute_host`
-
-    - Unmute a host in Datadog.
-    - **Inputs**:
-      - `hostname` (string): The name of the host to unmute.
-    - **Returns**: Success status and confirmation message.
-
-13. `list_downtimes`
-
-    - List scheduled downtimes from Datadog.
-    - **Inputs**:
-      - `currentOnly` (optional boolean): Return only currently active downtimes when true.
-      - `monitorId` (optional number): Filter by monitor ID.
-    - **Returns**: Array of scheduled downtimes with details including scope, monitor information, and schedule.
-
-14. `schedule_downtime`
-
-    - Schedule a downtime in Datadog.
-    - **Inputs**:
-      - `scope` (string): Scope to apply downtime to (e.g. 'host:my-host').
-      - `start` (optional number): UNIX timestamp for the start of the downtime.
-      - `end` (optional number): UNIX timestamp for the end of the downtime.
-      - `message` (optional string): A message to include with the downtime.
-      - `timezone` (optional string): The timezone for the downtime (e.g. 'UTC', 'America/New_York').
-      - `monitorId` (optional number): The ID of the monitor to mute.
-      - `monitorTags` (optional array): A list of monitor tags for filtering.
-      - `recurrence` (optional object): Recurrence settings for the downtime.
-        - `type` (string): Recurrence type ('days', 'weeks', 'months', 'years').
-        - `period` (number): How often to repeat (must be >= 1).
-        - `weekDays` (optional array): Days of the week for weekly recurrence.
-        - `until` (optional number): UNIX timestamp for when the recurrence ends.
-    - **Returns**: Scheduled downtime details including ID and active status.
-
-15. `cancel_downtime`
-
-    - Cancel a scheduled downtime in Datadog.
-    - **Inputs**:
-      - `downtimeId` (number): The ID of the downtime to cancel.
-    - **Returns**: Confirmation of downtime cancellation.
-
-16. `get_rum_applications`
-
-    - Get all RUM applications in the organization.
-    - **Inputs**: None.
-    - **Returns**: List of RUM applications.
-
-17. `get_rum_events`
-
-    - Search and retrieve RUM events from Datadog.
-    - **Inputs**:
-      - `query` (string): Datadog RUM query string.
-      - `from` (number): Start time in epoch seconds.
-      - `to` (number): End time in epoch seconds.
-      - `limit` (optional number): Maximum number of events to return (default: 100).
-    - **Returns**: Array of RUM events.
-
-18. `get_rum_grouped_event_count`
-
-    - Search, group and count RUM events by a specified dimension.
-    - **Inputs**:
-      - `query` (optional string): Additional query filter for RUM search (default: "\*").
-      - `from` (number): Start time in epoch seconds.
-      - `to` (number): End time in epoch seconds.
-      - `groupBy` (optional string): Dimension to group results by (default: "application.name").
-    - **Returns**: Grouped event counts.
-
-19. `get_rum_page_performance`
-
-    - Get page (view) performance metrics from RUM data.
-    - **Inputs**:
-      - `query` (optional string): Additional query filter for RUM search (default: "\*").
-      - `from` (number): Start time in epoch seconds.
-      - `to` (number): End time in epoch seconds.
-      - `metricNames` (array of strings): Array of metric names to retrieve (e.g., 'view.load_time', 'view.first_contentful_paint').
-    - **Returns**: Performance metrics including average, min, max, and count for each metric.
-
-20. `get_rum_page_waterfall`
-
-    - Retrieve RUM page (view) waterfall data filtered by application name and session ID.
-    - **Inputs**:
-      - `applicationName` (string): Application name to filter events.
-      - `sessionId` (string): Session ID to filter events.
-    - **Returns**: Waterfall data for the specified application and session.
+- **Observability Tools**: Access key Datadog monitoring features through conversational AI queries
+- **Advanced Root Cause Analysis**: Specialized tools for log pattern analysis, error signature extraction, anomaly detection, and SLO monitoring
+- **Automated Investigation Chains**: Predefined analysis sequences for common scenarios like monitor alerts, error logs, and performance regressions
+- **Contextual Guidance**: Scenario-specific guidance for different troubleshooting situations
+- **Extensible Design**: Easily integrate with additional Datadog APIs for future expansion
 
 ## Setup
 
@@ -241,26 +85,12 @@ pnpm build
 pnpm watch   # for development with auto-rebuild
 ```
 
-## Usage with Claude Desktop
+## Integration with Claude Desktop
 
 To use this with Claude Desktop, add the following to your `claude_desktop_config.json`:
 
 On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
-      }
-    }
-  }
-}
-```
 
 ```json
 {
@@ -296,6 +126,93 @@ Or specify via `npx`:
   }
 }
 ```
+
+## Available Tools
+
+### Core Datadog Tools
+
+1. **Incidents**
+
+   - `list_incidents` - Get a list of Datadog incidents
+   - `get_incident` - Get detailed information about a specific incident
+
+2. **Monitors**
+
+   - `get_monitors` - Get status of monitors with filtering options
+   - `get_monitor_event` - Get specific monitor event details
+
+3. **Logs**
+
+   - `get_logs` - Search and retrieve logs with filtering
+   - `get_all_services` - Extract all unique service names from logs
+
+4. **Metrics**
+
+   - `query_metrics` - Get metric data for specified time ranges
+
+5. **Dashboards**
+
+   - `list_dashboards` - List available dashboards
+   - `get_dashboard` - View detailed dashboard information
+
+6. **Traces**
+
+   - `list_traces` - Get APM traces filtered by service, operation, etc.
+
+7. **Hosts**
+
+   - `list_hosts` - List hosts with detailed information
+   - `get_active_hosts_count` - Count active hosts
+   - `mute_host` - Temporarily mute a host
+   - `unmute_host` - Re-enable alerting for a host
+
+8. **Downtimes**
+
+   - `list_downtimes` - View scheduled maintenance windows
+   - `schedule_downtime` - Create a new maintenance window
+   - `cancel_downtime` - Cancel a scheduled downtime
+
+9. **Real User Monitoring (RUM)**
+   - `get_rum_applications` - List RUM-enabled applications
+   - `get_rum_events` - Get RUM events for analysis
+   - `get_rum_grouped_event_count` - Get grouped RUM event counts
+   - `get_rum_page_performance` - Get page load and performance metrics
+   - `get_rum_page_waterfall` - Get detailed page load waterfall data
+
+### Advanced Root Cause Analysis Tools
+
+1. **Log Pattern Analysis**
+
+   - `find_log_patterns` - Group similar log messages
+   - `extract_error_signatures` - Categorize errors by type and location
+   - `detect_anomalous_patterns` - Find unusual log patterns compared to baseline
+
+2. **Anomaly Detection**
+
+   - `get_anomalies` - Find anomalies in metrics with various algorithms
+
+3. **Service Level Objectives (SLOs)**
+
+   - `list_slos` - Search available SLOs
+   - `get_slo` - Get detailed SLO information
+   - `get_slo_history` - View SLO history with error budget tracking
+   - `check_slos` - Find SLOs at risk of breaching
+
+4. **Events**
+
+   - `list_events` - Search the event stream
+   - `get_event` - Get detailed event information
+   - `create_event` - Create a new event
+
+5. **Investigation Chains**
+   - `execute_investigation_chain` - Run predefined analysis workflows
+   - `detect_and_execute_chain` - Automatically select and run appropriate workflows
+   - `list_investigation_chains` - See available investigation workflows
+
+For detailed API parameters and advanced usage examples:
+
+- [**RCA Features Documentation**](README-RCA.md) provides detailed API specifications, example queries for each tool, and insights on best practices for pattern analysis and anomaly detection
+- [**Root Cause Analysis Guide**](README-ROOTCAUSE.md) offers step-by-step guidance on setting up and using investigation chains for coordinated, multi-step troubleshooting workflows
 
 ## Debugging
 
