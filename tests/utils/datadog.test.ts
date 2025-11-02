@@ -34,6 +34,35 @@ describe('createDatadogConfig', () => {
       'datadoghq.com',
     )
   })
+})
+
+describe('createDatadogConfig', () => {
+  it('should create a datadog config with custom subdomain when DATADOG_SUBDOMAIN is configured', () => {
+    const datadogConfig = createDatadogConfig({
+      apiKeyAuth: 'test-api-key',
+      appKeyAuth: 'test-app-key',
+      subdomain: 'youryour-subdomain',
+    })
+    expect(datadogConfig.authMethods).toEqual({
+      apiKeyAuth: new ApiKeyAuthAuthentication('test-api-key'),
+      appKeyAuth: new AppKeyAuthAuthentication('test-app-key'),
+    })
+    expect(datadogConfig.servers[0]?.getConfiguration()?.subdomain).toBe(
+      'youryour-subdomain',
+    )
+  })
+
+  it('should create a datadog config with default subdomain when DATADOG_SUBDOMAIN is not configured', () => {
+    const datadogConfig = createDatadogConfig({
+      apiKeyAuth: 'test-api-key',
+      appKeyAuth: 'test-app-key',
+    })
+    expect(datadogConfig.authMethods).toEqual({
+      apiKeyAuth: new ApiKeyAuthAuthentication('test-api-key'),
+      appKeyAuth: new AppKeyAuthAuthentication('test-app-key'),
+    })
+    expect(datadogConfig.servers[0]?.getConfiguration()?.subdomain).toBe('api')
+  })
 
   it('should throw an error when DATADOG_API_KEY are not configured', () => {
     expect(() =>

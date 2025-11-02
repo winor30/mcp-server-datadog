@@ -212,13 +212,15 @@ You need valid Datadog API credentials to use this MCP server:
 - `DATADOG_API_KEY`: Your Datadog API key
 - `DATADOG_APP_KEY`: Your Datadog Application key
 - `DATADOG_SITE` (optional): The Datadog site (e.g. `datadoghq.eu`)
+- `DATADOG_SUBDOMAIN` (optional): The Datadog subdomain (e.g. `<your-subdomain>.datadoghq.com`)
 
 Export them in your environment before running the server:
 
 ```bash
 export DATADOG_API_KEY="your_api_key"
 export DATADOG_APP_KEY="your_app_key"
-export DATADOG_SITE="your_datadog_site"
+export DATADOG_SITE="your_datadog_site" # Optional
+export DATADOG_SUBDOMAIN="your_datadog_subdomain" # Optional
 ```
 
 ## Installation
@@ -243,7 +245,7 @@ pnpm watch   # for development with auto-rebuild
 
 To use this with Claude Desktop, add the following to your `claude_desktop_config.json`:
 
-On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
+On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ```json
@@ -268,7 +270,8 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
       "env": {
         "DATADOG_API_KEY": "<YOUR_API_KEY>",
         "DATADOG_APP_KEY": "<YOUR_APP_KEY>",
-        "DATADOG_SITE": "<YOUR_SITE>" // Optional
+        "DATADOG_SITE": "<YOUR_SITE>", // Optional
+        "DATADOG_SUBDOMAIN": "<YOUR_SUBDOMAIN>" // Optional
       }
     }
   }
@@ -286,7 +289,8 @@ Or specify via `npx`:
       "env": {
         "DATADOG_API_KEY": "<YOUR_API_KEY>",
         "DATADOG_APP_KEY": "<YOUR_APP_KEY>",
-        "DATADOG_SITE": "<YOUR_SITE>" // Optional
+        "DATADOG_SITE": "<YOUR_SITE>", // Optional
+        "DATADOG_SUBDOMAIN": "<YOUR_SUBDOMAIN>" // Optional
       }
     }
   }

@@ -74,6 +74,7 @@ const datadogConfig = createDatadogConfig({
   apiKeyAuth: process.env.DATADOG_API_KEY,
   appKeyAuth: process.env.DATADOG_APP_KEY,
   site: process.env.DATADOG_SITE,
+  subdomain: process.env.DATADOG_SUBDOMAIN,
 })
 
 const TOOL_HANDLERS: ToolHandlers = {

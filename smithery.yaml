@@ -19,6 +19,10 @@ startCommand:
         type: string
         default: ''
         description: Optional Datadog site (e.g. datadoghq.eu)
+      datadogSubdomain:
+        type: string
+        default: ''
+        description: Optional Datadog subdomain (e.g. <your-subdomain>.datadoghq.com)
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
@@ -28,10 +32,12 @@ startCommand:
       env: Object.assign({}, process.env, {
         DATADOG_API_KEY: config.datadogApiKey,
         DATADOG_APP_KEY: config.datadogAppKey,
-        ...(config.datadogSite && { DATADOG_SITE: config.datadogSite })
+        ...(config.datadogSite && { DATADOG_SITE: config.datadogSite }),
+        ...(config.datadogSubdomain && { DATADOG_SUBDOMAIN: config.datadogSubdomain })
       })
     })
   exampleConfig:
     datadogApiKey: your_datadog_api_key_here
     datadogAppKey: your_datadog_app_key_here
     datadogSite: datadoghq.com
+    datadogSubdomain: your-subdomain

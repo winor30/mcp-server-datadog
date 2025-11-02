@@ -4,6 +4,7 @@ interface CreateDatadogConfigParams {
   apiKeyAuth: string
   appKeyAuth: string
   site?: string
+  subdomain?: string
 }
 
 export function createDatadogConfig(
@@ -22,6 +23,12 @@ export function createDatadogConfig(
   if (config.site != null) {
     datadogConfig.setServerVariables({
       site: config.site,
+    })
+  }
+
+  if (config.subdomain != null) {
+    datadogConfig.setServerVariables({
+      subdomain: config.subdomain,
     })
   }
 
