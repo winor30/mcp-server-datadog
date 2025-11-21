@@ -213,6 +213,7 @@ You need valid Datadog API credentials to use this MCP server:
 - `DATADOG_APP_KEY`: Your Datadog Application key
 - `DATADOG_SITE` (optional): The Datadog site (e.g. `datadoghq.eu`)
 - `DATADOG_SUBDOMAIN` (optional): The Datadog subdomain (e.g. `<your-subdomain>.datadoghq.com`)
+- `DATADOG_STORAGE_TIER` (optional): Logs storage tier for v2 logs searches. Supported values: `indexes`, `online-archives`, or `flex`. Use `flex` for non-prod SAAS environments where logs are stored in the Flex tier.
 
 Export them in your environment before running the server:
 
@@ -221,6 +222,7 @@ export DATADOG_API_KEY="your_api_key"
 export DATADOG_APP_KEY="your_app_key"
 export DATADOG_SITE="your_datadog_site" # Optional
 export DATADOG_SUBDOMAIN="your_datadog_subdomain" # Optional
+export DATADOG_STORAGE_TIER="flex" # Optional: indexes | online-archives | flex
 ```
 
 ## Installation
@@ -271,7 +273,8 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
         "DATADOG_API_KEY": "<YOUR_API_KEY>",
         "DATADOG_APP_KEY": "<YOUR_APP_KEY>",
         "DATADOG_SITE": "<YOUR_SITE>", // Optional
-        "DATADOG_SUBDOMAIN": "<YOUR_SUBDOMAIN>" // Optional
+        "DATADOG_SUBDOMAIN": "<YOUR_SUBDOMAIN>", // Optional
+        "DATADOG_STORAGE_TIER": "indexes" // Optional: indexes | online-archives | flex
       }
     }
   }
@@ -290,7 +293,8 @@ Or specify via `npx`:
         "DATADOG_API_KEY": "<YOUR_API_KEY>",
         "DATADOG_APP_KEY": "<YOUR_APP_KEY>",
         "DATADOG_SITE": "<YOUR_SITE>", // Optional
-        "DATADOG_SUBDOMAIN": "<YOUR_SUBDOMAIN>" // Optional
+        "DATADOG_SUBDOMAIN": "<YOUR_SUBDOMAIN>", // Optional
+        "DATADOG_STORAGE_TIER": "indexes" // Optional: indexes | online-archives | flex
       }
     }
   }
