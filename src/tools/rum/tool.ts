@@ -8,6 +8,7 @@ import {
   GetRumPagePerformanceZodSchema,
   GetRumPageWaterfallZodSchema,
 } from './schema'
+import { parseDatetime } from '../../utils/datetime-parser'
 
 type RumToolName =
   | 'get_rum_events'
@@ -74,10 +75,14 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
+    // Parse datetime inputs to epoch seconds
+    const fromEpoch = parseDatetime(from)
+    const toEpoch = parseDatetime(to)
+
     const response = await apiInstance.listRUMEvents({
       filterQuery: query,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
+      filterFrom: new Date(fromEpoch * 1000),
+      filterTo: new Date(toEpoch * 1000),
       sort: 'timestamp',
       pageLimit: limit,
     })
@@ -101,11 +106,15 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
+    // Parse datetime inputs to epoch seconds
+    const fromEpoch = parseDatetime(from)
+    const toEpoch = parseDatetime(to)
+
     // For session counts, we need to use a query to count unique sessions
     const response = await apiInstance.listRUMEvents({
       filterQuery: query !== '*' ? query : undefined,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
+      filterFrom: new Date(fromEpoch * 1000),
+      filterTo: new Date(toEpoch * 1000),
       sort: 'timestamp',
       pageLimit: 2000,
     })
@@ -163,13 +172,17 @@ export const createRumToolHandlers = (
     const { query, from, to, metricNames } =
       GetRumPagePerformanceZodSchema.parse(request.params.arguments)
 
+    // Parse datetime inputs to epoch seconds
+    const fromEpoch = parseDatetime(from)
+    const toEpoch = parseDatetime(to)
+
     // Build a query that focuses on view events with performance metrics
     const viewQuery = query !== '*' ? `@type:view ${query}` : '@type:view'
 
     const response = await apiInstance.listRUMEvents({
       filterQuery: viewQuery,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
+      filterFrom: new Date(fromEpoch * 1000),
+      filterTo: new Date(toEpoch * 1000),
       sort: 'timestamp',
       pageLimit: 2000,
     })

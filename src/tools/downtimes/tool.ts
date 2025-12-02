@@ -6,6 +6,7 @@ import {
   ScheduleDowntimeZodSchema,
   CancelDowntimeZodSchema,
 } from './schema'
+import { parseDatetime } from '../../utils/datetime-parser'
 
 type DowntimesToolName =
   | 'list_downtimes'
@@ -59,11 +60,21 @@ export const createDowntimesToolHandlers = (
     schedule_downtime: async (request) => {
       const params = ScheduleDowntimeZodSchema.parse(request.params.arguments)
 
+      // Parse datetime inputs to epoch seconds if provided
+      const startEpoch =
+        params.start !== undefined ? parseDatetime(params.start) : undefined
+      const endEpoch =
+        params.end !== undefined ? parseDatetime(params.end) : undefined
+      const untilEpoch =
+        params.recurrence?.until !== undefined
+          ? parseDatetime(params.recurrence.until)
+          : undefined
+
       // Convert to the format expected by Datadog client
       const downtimeData: v1.Downtime = {
         scope: [params.scope],
-        start: params.start,
-        end: params.end,
+        start: startEpoch,
+        end: endEpoch,
         message: params.message,
         timezone: params.timezone,
         monitorId: params.monitorId,
@@ -76,6 +87,7 @@ export const createDowntimesToolHandlers = (
           type: params.recurrence.type,
           period: params.recurrence.period,
           weekDays: params.recurrence.weekDays,
+          untilDate: untilEpoch,
         }
       }
 

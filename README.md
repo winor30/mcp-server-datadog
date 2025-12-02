@@ -14,11 +14,39 @@ MCP server for the Datadog API, enabling incident management and more.
 
 - **Observability Tools**: Provides a mechanism to leverage key Datadog monitoring features, such as incidents, monitors, logs, dashboards, and metrics, through the MCP server.
 - **Extensible Design**: Designed to easily integrate with additional Datadog APIs, allowing for seamless future feature expansion.
+- **LLM-Friendly Datetime Formats**: All time-based parameters accept human-readable formats in addition to epoch timestamps, making it easier for LLMs to specify time ranges without complex timestamp calculations.
+
+## Datetime Formats
+
+All tools that accept time parameters (`from`, `to`, `start`, `end`, `until`) support multiple formats:
+
+| Format        | Example                                         | Description                         |
+| ------------- | ----------------------------------------------- | ----------------------------------- |
+| Epoch seconds | `1732713600`                                    | Traditional Unix timestamp (number) |
+| `now`         | `now`                                           | Current time                        |
+| Relative time | `now-1h`, `now-30m`, `now-7d`, `now-2w`         | Time relative to now (s/m/h/d/w)    |
+| ISO 8601      | `2025-11-28T12:00:00Z`, `2025-11-28`            | Standard datetime format            |
+| Shortcuts     | `yesterday`, `today`, `last week`, `last month` | Common time references              |
+
+**Examples:**
+
+```
+# Get logs from the last hour
+from: "now-1h", to: "now"
+
+# Get logs from yesterday
+from: "yesterday", to: "today"
+
+# Get logs for a specific date range
+from: "2025-11-01", to: "2025-11-28"
+
+# Mix formats as needed
+from: "last week", to: "now"
+```
 
 ## Tools
 
 1. `list_incidents`
-
    - Retrieve a list of incidents from Datadog.
    - **Inputs**:
      - `filter` (optional string): Filter parameters for incidents (e.g., status, priority).
@@ -26,14 +54,12 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of Datadog incidents and associated metadata.
 
 2. `get_incident`
-
    - Retrieve detailed information about a specific Datadog incident.
    - **Inputs**:
      - `incident_id` (string): Incident ID to fetch details for.
    - **Returns**: Detailed incident information (title, status, timestamps, etc.).
 
 3. `get_monitors`
-
    - Fetch the status of Datadog monitors.
    - **Inputs**:
      - `groupStates` (optional array): States to filter (e.g., alert, warn, no data, ok).
@@ -42,17 +68,15 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Monitors data and a summary of their statuses.
 
 4. `get_logs`
-
    - Search and retrieve logs from Datadog.
    - **Inputs**:
      - `query` (string): Datadog logs query string.
-     - `from` (number): Start time in epoch seconds.
-     - `to` (number): End time in epoch seconds.
+     - `from` (number | string): Start time (see [Datetime Formats](#datetime-formats)).
+     - `to` (number | string): End time (see [Datetime Formats](#datetime-formats)).
      - `limit` (optional number): Maximum number of logs to return (defaults to 100).
    - **Returns**: Array of matching logs.
 
 5. `list_dashboards`
-
    - Get a list of dashboards from Datadog.
    - **Inputs**:
      - `name` (optional string): Filter dashboards by name.
@@ -60,28 +84,25 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of dashboards with URL references.
 
 6. `get_dashboard`
-
    - Retrieve a specific dashboard from Datadog.
    - **Inputs**:
      - `dashboard_id` (string): ID of the dashboard to fetch.
    - **Returns**: Dashboard details including title, widgets, etc.
 
 7. `query_metrics`
-
    - Retrieve metrics data from Datadog.
    - **Inputs**:
      - `query` (string): Metrics query string.
-     - `from` (number): Start time in epoch seconds.
-     - `to` (number): End time in epoch seconds.
+     - `from` (number | string): Start time (see [Datetime Formats](#datetime-formats)).
+     - `to` (number | string): End time (see [Datetime Formats](#datetime-formats)).
    - **Returns**: Metrics data for the queried timeframe.
 
 8. `list_traces`
-
    - Retrieve a list of APM traces from Datadog.
    - **Inputs**:
      - `query` (string): Datadog APM trace query string.
-     - `from` (number): Start time in epoch seconds.
-     - `to` (number): End time in epoch seconds.
+     - `from` (number | string): Start time (see [Datetime Formats](#datetime-formats)).
+     - `to` (number | string): End time (see [Datetime Formats](#datetime-formats)).
      - `limit` (optional number): Maximum number of traces to return (defaults to 100).
      - `sort` (optional string): Sort order for traces (defaults to '-timestamp').
      - `service` (optional string): Filter by service name.
@@ -89,7 +110,6 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of matching traces from Datadog APM.
 
 9. `list_hosts`
-
    - Get list of hosts from Datadog.
    - **Inputs**:
      - `filter` (optional string): Filter string for search results.
@@ -103,14 +123,12 @@ MCP server for the Datadog API, enabling incident management and more.
    - **Returns**: Array of hosts with details including name, ID, aliases, apps, mute status, and more.
 
 10. `get_active_hosts_count`
-
     - Get the total number of active hosts in Datadog.
     - **Inputs**:
       - `from` (optional number): Number of seconds from which you want to get total number of active hosts (defaults to 2h).
     - **Returns**: Count of total active and up hosts.
 
 11. `mute_host`
-
     - Mute a host in Datadog.
     - **Inputs**:
       - `hostname` (string): The name of the host to mute.
@@ -120,14 +138,12 @@ MCP server for the Datadog API, enabling incident management and more.
     - **Returns**: Success status and confirmation message.
 
 12. `unmute_host`
-
     - Unmute a host in Datadog.
     - **Inputs**:
       - `hostname` (string): The name of the host to unmute.
     - **Returns**: Success status and confirmation message.
 
 13. `list_downtimes`
-
     - List scheduled downtimes from Datadog.
     - **Inputs**:
       - `currentOnly` (optional boolean): Return only currently active downtimes when true.
@@ -135,12 +151,11 @@ MCP server for the Datadog API, enabling incident management and more.
     - **Returns**: Array of scheduled downtimes with details including scope, monitor information, and schedule.
 
 14. `schedule_downtime`
-
     - Schedule a downtime in Datadog.
     - **Inputs**:
       - `scope` (string): Scope to apply downtime to (e.g. 'host:my-host').
-      - `start` (optional number): UNIX timestamp for the start of the downtime.
-      - `end` (optional number): UNIX timestamp for the end of the downtime.
+      - `start` (optional number | string): Start time (see [Datetime Formats](#datetime-formats)).
+      - `end` (optional number | string): End time (see [Datetime Formats](#datetime-formats)).
       - `message` (optional string): A message to include with the downtime.
       - `timezone` (optional string): The timezone for the downtime (e.g. 'UTC', 'America/New_York').
       - `monitorId` (optional number): The ID of the monitor to mute.
@@ -149,54 +164,48 @@ MCP server for the Datadog API, enabling incident management and more.
         - `type` (string): Recurrence type ('days', 'weeks', 'months', 'years').
         - `period` (number): How often to repeat (must be >= 1).
         - `weekDays` (optional array): Days of the week for weekly recurrence.
-        - `until` (optional number): UNIX timestamp for when the recurrence ends.
+        - `until` (optional number | string): When the recurrence ends (see [Datetime Formats](#datetime-formats)).
     - **Returns**: Scheduled downtime details including ID and active status.
 
 15. `cancel_downtime`
-
     - Cancel a scheduled downtime in Datadog.
     - **Inputs**:
       - `downtimeId` (number): The ID of the downtime to cancel.
     - **Returns**: Confirmation of downtime cancellation.
 
 16. `get_rum_applications`
-
     - Get all RUM applications in the organization.
     - **Inputs**: None.
     - **Returns**: List of RUM applications.
 
 17. `get_rum_events`
-
     - Search and retrieve RUM events from Datadog.
     - **Inputs**:
       - `query` (string): Datadog RUM query string.
-      - `from` (number): Start time in epoch seconds.
-      - `to` (number): End time in epoch seconds.
+      - `from` (number | string): Start time (see [Datetime Formats](#datetime-formats)).
+      - `to` (number | string): End time (see [Datetime Formats](#datetime-formats)).
       - `limit` (optional number): Maximum number of events to return (default: 100).
     - **Returns**: Array of RUM events.
 
 18. `get_rum_grouped_event_count`
-
     - Search, group and count RUM events by a specified dimension.
     - **Inputs**:
       - `query` (optional string): Additional query filter for RUM search (default: "\*").
-      - `from` (number): Start time in epoch seconds.
-      - `to` (number): End time in epoch seconds.
+      - `from` (number | string): Start time (see [Datetime Formats](#datetime-formats)).
+      - `to` (number | string): End time (see [Datetime Formats](#datetime-formats)).
       - `groupBy` (optional string): Dimension to group results by (default: "application.name").
     - **Returns**: Grouped event counts.
 
 19. `get_rum_page_performance`
-
     - Get page (view) performance metrics from RUM data.
     - **Inputs**:
       - `query` (optional string): Additional query filter for RUM search (default: "\*").
-      - `from` (number): Start time in epoch seconds.
-      - `to` (number): End time in epoch seconds.
+      - `from` (number | string): Start time (see [Datetime Formats](#datetime-formats)).
+      - `to` (number | string): End time (see [Datetime Formats](#datetime-formats)).
       - `metricNames` (array of strings): Array of metric names to retrieve (e.g., 'view.load_time', 'view.first_contentful_paint').
     - **Returns**: Performance metrics including average, min, max, and count for each metric.
 
 20. `get_rum_page_waterfall`
-
     - Retrieve RUM page (view) waterfall data filtered by application name and session ID.
     - **Inputs**:
       - `applicationName` (string): Application name to filter events.

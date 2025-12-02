@@ -1,10 +1,10 @@
 {
-  "name": "@winor30/mcp-server-datadog",
-  "version": "1.7.0",
+  "name": "@oskar-korczak-complexio/mcp-server-datadog",
+  "version": "1.8.2",
   "description": "MCP server for interacting with Datadog API",
   "repository": {
     "type": "git",
-    "url": "https://github.com/winor30/mcp-server-datadog.git"
+    "url": "https://github.com/oskar-korczak/mcp-server-datadog.git"
   },
   "type": "module",
   "bin": {
@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "tsup &&  node -e \"require('fs').chmodSync('build/index.js', '755')\"",
-    "prepare": "husky",
+    "prepare": "husky || true && npm run build",
     "watch": "tsup --watch",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "eslint . --ext .ts,.js --fix",
@@ -37,6 +37,7 @@
   "dependencies": {
     "@datadog/datadog-api-client": "^1.34.1",
     "@modelcontextprotocol/sdk": "0.6.0",
+    "chrono-node": "^2.9.0",
     "zod": "^3.24.3",
     "zod-to-json-schema": "^3.24.5"
   },

@@ -2,6 +2,7 @@ import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v2 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { ListTracesZodSchema } from './schema'
+import { parseDatetime } from '../../utils/datetime-parser'
 
 type TracesToolName = 'list_traces'
 type TracesTool = ExtendedTool<TracesToolName>
@@ -31,6 +32,10 @@ export const createTracesToolHandlers = (
         operation,
       } = ListTracesZodSchema.parse(request.params.arguments)
 
+      // Parse datetime inputs to epoch seconds
+      const fromEpoch = parseDatetime(from)
+      const toEpoch = parseDatetime(to)
+
       const response = await apiInstance.listSpans({
         body: {
           data: {
@@ -41,8 +46,8 @@ export const createTracesToolHandlers = (
                   ...(service ? [`service:${service}`] : []),
                   ...(operation ? [`operation:${operation}`] : []),
                 ].join(' '),
-                from: new Date(from * 1000).toISOString(),
-                to: new Date(to * 1000).toISOString(),
+                from: new Date(fromEpoch * 1000).toISOString(),
+                to: new Date(toEpoch * 1000).toISOString(),
               },
               sort: sort as 'timestamp' | '-timestamp',
               page: { limit },

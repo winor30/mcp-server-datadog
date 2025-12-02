@@ -1,14 +1,13 @@
 import { z } from 'zod'
+import { DATETIME_DESCRIPTION } from '../../utils/datetime-parser'
 
 export const QueryMetricsZodSchema = z.object({
   from: z
-    .number()
-    .describe(
-      'Start of the queried time period, seconds since the Unix epoch.',
-    ),
+    .union([z.number(), z.string()])
+    .describe(`Start of the queried time period. ${DATETIME_DESCRIPTION}`),
   to: z
-    .number()
-    .describe('End of the queried time period, seconds since the Unix epoch.'),
+    .union([z.number(), z.string()])
+    .describe(`End of the queried time period. ${DATETIME_DESCRIPTION}`),
   query: z
     .string()
     .describe('Datadog metrics query string. e.g. "avg:system.cpu.user{*}'),

@@ -2,6 +2,7 @@ import { ExtendedTool, ToolHandlers } from '../../utils/types'
 import { v1 } from '@datadog/datadog-api-client'
 import { createToolSchema } from '../../utils/tool'
 import { QueryMetricsZodSchema } from './schema'
+import { parseDatetime } from '../../utils/datetime-parser'
 
 type MetricsToolName = 'query_metrics'
 type MetricsTool = ExtendedTool<MetricsToolName>
@@ -25,9 +26,13 @@ export const createMetricsToolHandlers = (
         request.params.arguments,
       )
 
+      // Parse datetime inputs to epoch seconds
+      const fromEpoch = parseDatetime(from)
+      const toEpoch = parseDatetime(to)
+
       const response = await apiInstance.queryMetrics({
-        from,
-        to,
+        from: fromEpoch,
+        to: toEpoch,
         query,
       })
 

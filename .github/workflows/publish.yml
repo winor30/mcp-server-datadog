@@ -1,8 +1,7 @@
 name: Publish to npm
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  release:
+    types: [published]
 
 jobs:
   publish:
@@ -10,7 +9,7 @@ jobs:
 
     permissions:
       contents: read
-      id-token: write
+      id-token: write  # Required for OIDC trusted publishing
 
     steps:
       - name: Checkout
@@ -24,13 +23,20 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
+      - name: Update npm for OIDC support
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test
 
       - name: Build
         run: pnpm run build
 
       - name: Publish
-        run: pnpm publish --provenance --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # Use npm publish for OIDC support (pnpm doesn't support it yet)
+        # No NPM_TOKEN needed - uses OIDC trusted publishing
+        # Provenance is automatically generated with trusted publishing
+        run: npm publish --access public

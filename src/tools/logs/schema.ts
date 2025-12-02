@@ -1,9 +1,14 @@
 import { z } from 'zod'
+import { DATETIME_DESCRIPTION } from '../../utils/datetime-parser'
 
 export const GetLogsZodSchema = z.object({
   query: z.string().default('').describe('Datadog logs query string'),
-  from: z.number().describe('Start time in epoch seconds'),
-  to: z.number().describe('End time in epoch seconds'),
+  from: z
+    .union([z.number(), z.string()])
+    .describe(`Start time. ${DATETIME_DESCRIPTION}`),
+  to: z
+    .union([z.number(), z.string()])
+    .describe(`End time. ${DATETIME_DESCRIPTION}`),
   limit: z
     .number()
     .optional()
@@ -16,8 +21,8 @@ export const GetLogsZodSchema = z.object({
  * Defines parameters for querying logs within a time window.
  *
  * @param query - Optional. Additional query filter for log search. Defaults to "*" (all logs)
- * @param from - Required. Start time in epoch seconds
- * @param to - Required. End time in epoch seconds
+ * @param from - Required. Start time (epoch seconds, relative time, ISO 8601, or shortcut)
+ * @param to - Required. End time (epoch seconds, relative time, ISO 8601, or shortcut)
  * @param limit - Optional. Maximum number of logs to search through. Default is 1000.
  */
 export const GetAllServicesZodSchema = z.object({
@@ -25,8 +30,12 @@ export const GetAllServicesZodSchema = z.object({
     .string()
     .default('*')
     .describe('Optional query filter for log search'),
-  from: z.number().describe('Start time in epoch seconds'),
-  to: z.number().describe('End time in epoch seconds'),
+  from: z
+    .union([z.number(), z.string()])
+    .describe(`Start time. ${DATETIME_DESCRIPTION}`),
+  to: z
+    .union([z.number(), z.string()])
+    .describe(`End time. ${DATETIME_DESCRIPTION}`),
   limit: z
     .number()
     .optional()

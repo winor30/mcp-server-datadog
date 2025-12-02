@@ -1,18 +1,23 @@
 import { z } from 'zod'
+import { DATETIME_DESCRIPTION } from '../../utils/datetime-parser'
 
 /**
  * Schema for retrieving RUM events.
  * Defines parameters for querying RUM events within a time window.
  *
  * @param query - Datadog RUM query string
- * @param from - Start time in epoch seconds
- * @param to - End time in epoch seconds
+ * @param from - Start time (epoch seconds, relative time, ISO 8601, or shortcut)
+ * @param to - End time (epoch seconds, relative time, ISO 8601, or shortcut)
  * @param limit - Maximum number of events to return (default: 100)
  */
 export const GetRumEventsZodSchema = z.object({
   query: z.string().default('').describe('Datadog RUM query string'),
-  from: z.number().describe('Start time in epoch seconds'),
-  to: z.number().describe('End time in epoch seconds'),
+  from: z
+    .union([z.number(), z.string()])
+    .describe(`Start time. ${DATETIME_DESCRIPTION}`),
+  to: z
+    .union([z.number(), z.string()])
+    .describe(`End time. ${DATETIME_DESCRIPTION}`),
   limit: z
     .number()
     .optional()
@@ -31,8 +36,8 @@ export const GetRumApplicationsZodSchema = z.object({})
  * Defines parameters for querying session counts within a time window.
  *
  * @param query - Optional. Additional query filter for RUM search. Defaults to "*" (all events)
- * @param from - Start time in epoch seconds
- * @param to - End time in epoch seconds
+ * @param from - Start time (epoch seconds, relative time, ISO 8601, or shortcut)
+ * @param to - End time (epoch seconds, relative time, ISO 8601, or shortcut)
  * @param groupBy - Optional. Dimension to group results by (e.g., 'application.name')
  */
 export const GetRumGroupedEventCountZodSchema = z.object({
@@ -40,8 +45,12 @@ export const GetRumGroupedEventCountZodSchema = z.object({
     .string()
     .default('*')
     .describe('Optional query filter for RUM search'),
-  from: z.number().describe('Start time in epoch seconds'),
-  to: z.number().describe('End time in epoch seconds'),
+  from: z
+    .union([z.number(), z.string()])
+    .describe(`Start time. ${DATETIME_DESCRIPTION}`),
+  to: z
+    .union([z.number(), z.string()])
+    .describe(`End time. ${DATETIME_DESCRIPTION}`),
   groupBy: z
     .string()
     .optional()
@@ -54,8 +63,8 @@ export const GetRumGroupedEventCountZodSchema = z.object({
  * Defines parameters for querying performance metrics within a time window.
  *
  * @param query - Optional. Additional query filter for RUM search. Defaults to "*" (all events)
- * @param from - Start time in epoch seconds
- * @param to - End time in epoch seconds
+ * @param from - Start time (epoch seconds, relative time, ISO 8601, or shortcut)
+ * @param to - End time (epoch seconds, relative time, ISO 8601, or shortcut)
  * @param metricNames - Array of metric names to retrieve (e.g., 'view.load_time', 'view.first_contentful_paint')
  */
 export const GetRumPagePerformanceZodSchema = z.object({
@@ -63,8 +72,12 @@ export const GetRumPagePerformanceZodSchema = z.object({
     .string()
     .default('*')
     .describe('Optional query filter for RUM search'),
-  from: z.number().describe('Start time in epoch seconds'),
-  to: z.number().describe('End time in epoch seconds'),
+  from: z
+    .union([z.number(), z.string()])
+    .describe(`Start time. ${DATETIME_DESCRIPTION}`),
+  to: z
+    .union([z.number(), z.string()])
+    .describe(`End time. ${DATETIME_DESCRIPTION}`),
   metricNames: z
     .array(z.string())
     .default([
@@ -81,8 +94,6 @@ export const GetRumPagePerformanceZodSchema = z.object({
  *
  * @param application - Application name or ID to filter events
  * @param sessionId - Session ID to filter events
- * @param from - Start time in epoch seconds
- * @param to - End time in epoch seconds
  */
 export const GetRumPageWaterfallZodSchema = z.object({
   applicationName: z.string().describe('Application name to filter events'),
