@@ -213,7 +213,7 @@ You need valid Datadog API credentials to use this MCP server:
 - `DATADOG_APP_KEY`: Your Datadog Application key
 - `DATADOG_SITE` (optional): The Datadog site (e.g. `datadoghq.eu`)
 - `DATADOG_SUBDOMAIN` (optional): The Datadog subdomain (e.g. `<your-subdomain>.datadoghq.com`)
-- `DATADOG_STORAGE_TIER` (optional): Logs storage tier for v2 logs searches. Supported values: `indexes`, `online-archives`, or `flex`. Use `flex` for non-prod SAAS environments where logs are stored in the Flex tier.
+- `DATADOG_STORAGE_TIER` (optional): Logs storage tier for v2 logs searches. Supported values: `indexes`, `online-archives`, or `flex`.
 
 Export them in your environment before running the server:
 
