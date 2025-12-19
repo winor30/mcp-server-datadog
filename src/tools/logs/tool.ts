@@ -11,7 +11,7 @@ type LogsTool = ExtendedTool<LogsToolName>
 const SUPPORTED_STORAGE_TIERS = ['indexes', 'online-archives', 'flex'] as const
 type StorageTier = (typeof SUPPORTED_STORAGE_TIERS)[number]
 
-const configuredStorageTier: StorageTier | undefined = (() => {
+function getConfiguredStorageTier(): StorageTier | undefined {
   const value = process.env.DATADOG_STORAGE_TIER
   if (!value) {
     return undefined
@@ -29,7 +29,7 @@ const configuredStorageTier: StorageTier | undefined = (() => {
   }
 
   return normalized as StorageTier
-})()
+}
 
 export const LOGS_TOOLS: LogsTool[] = [
   createToolSchema(
@@ -54,18 +54,27 @@ export const createLogsToolHandlers = (
       request.params.arguments,
     )
 
+    const configuredStorageTier = getConfiguredStorageTier()
+    const filter: {
+      query: string
+      from: string
+      to: string
+      storageTier?: string
+    } = {
+      query,
+      // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
+      from: `${from * 1000}`,
+      to: `${to * 1000}`,
+    }
+
+    // Add storageTier to filter if configured
+    if (configuredStorageTier) {
+      filter.storageTier = configuredStorageTier
+    }
+
     const response = await apiInstance.listLogs({
       body: {
-        filter: {
-          query,
-          // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
-          from: `${from * 1000}`,
-          to: `${to * 1000}`,
-          // Optional storage tier for Logs v2 (indexes, online-archives, flex)
-          ...(configuredStorageTier
-            ? { storageTier: configuredStorageTier }
-            : {}),
-        },
+        filter,
         page: {
           limit,
         },
@@ -92,18 +101,27 @@ export const createLogsToolHandlers = (
       request.params.arguments,
     )
 
+    const configuredStorageTier = getConfiguredStorageTier()
+    const filter: {
+      query: string
+      from: string
+      to: string
+      storageTier?: string
+    } = {
+      query,
+      // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
+      from: `${from * 1000}`,
+      to: `${to * 1000}`,
+    }
+
+    // Add storageTier to filter if configured
+    if (configuredStorageTier) {
+      filter.storageTier = configuredStorageTier
+    }
+
     const response = await apiInstance.listLogs({
       body: {
-        filter: {
-          query,
-          // `from` and `to` are in epoch seconds, but the Datadog API expects milliseconds
-          from: `${from * 1000}`,
-          to: `${to * 1000}`,
-          // Optional storage tier for Logs v2 (indexes, online-archives, flex)
-          ...(configuredStorageTier
-            ? { storageTier: configuredStorageTier }
-            : {}),
-        },
+        filter,
         page: {
           limit,
         },
