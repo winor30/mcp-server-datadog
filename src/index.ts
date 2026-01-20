@@ -28,6 +28,7 @@ import { ToolHandlers } from './utils/types'
 import { createDatadogConfig } from './utils/datadog'
 import { createDowntimesToolHandlers, DOWNTIMES_TOOLS } from './tools/downtimes'
 import { createRumToolHandlers, RUM_TOOLS } from './tools/rum'
+import { createNotebooksToolHandlers, NOTEBOOKS_TOOLS } from './tools/notebooks'
 import { v2, v1 } from '@datadog/datadog-api-client'
 
 const server = new Server(
@@ -62,6 +63,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       ...HOSTS_TOOLS,
       ...DOWNTIMES_TOOLS,
       ...RUM_TOOLS,
+      ...NOTEBOOKS_TOOLS,
     ],
   }
 })
@@ -79,7 +81,10 @@ const datadogConfig = createDatadogConfig({
 
 const TOOL_HANDLERS: ToolHandlers = {
   ...createIncidentToolHandlers(new v2.IncidentsApi(datadogConfig)),
-  ...createMetricsToolHandlers(new v1.MetricsApi(datadogConfig)),
+  ...createMetricsToolHandlers(
+    new v1.MetricsApi(datadogConfig),
+    new v2.MetricsApi(datadogConfig),
+  ),
   ...createLogsToolHandlers(new v2.LogsApi(datadogConfig)),
   ...createMonitorsToolHandlers(new v1.MonitorsApi(datadogConfig)),
   ...createDashboardsToolHandlers(new v1.DashboardsApi(datadogConfig)),
@@ -87,6 +92,7 @@ const TOOL_HANDLERS: ToolHandlers = {
   ...createHostsToolHandlers(new v1.HostsApi(datadogConfig)),
   ...createDowntimesToolHandlers(new v1.DowntimesApi(datadogConfig)),
   ...createRumToolHandlers(new v2.RUMApi(datadogConfig)),
+  ...createNotebooksToolHandlers(new v1.NotebooksApi(datadogConfig)),
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.

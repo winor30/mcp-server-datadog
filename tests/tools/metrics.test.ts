@@ -1,4 +1,4 @@
-import { v1 } from '@datadog/datadog-api-client'
+import { v1, v2 } from '@datadog/datadog-api-client'
 import { describe, it, expect } from 'vitest'
 import { createDatadogConfig } from '../../src/utils/datadog'
 import { createMetricsToolHandlers } from '../../src/tools/metrics/tool'
@@ -8,6 +8,10 @@ import { setupServer } from '../helpers/msw'
 import { baseUrl, DatadogToolResponse } from '../helpers/datadog'
 
 const metricsEndpoint = `${baseUrl}/v1/query`
+const searchMetricsEndpoint = `${baseUrl}/v1/search`
+const activeMetricsEndpoint = `${baseUrl}/v1/metrics`
+const metricMetadataEndpoint = `${baseUrl}/v1/metrics`
+const tagsEndpoint = `${baseUrl}/v2/metrics`
 
 describe('Metrics Tool', () => {
   if (!process.env.DATADOG_API_KEY || !process.env.DATADOG_APP_KEY) {
@@ -20,8 +24,9 @@ describe('Metrics Tool', () => {
     site: process.env.DATADOG_SITE,
   })
 
-  const apiInstance = new v1.MetricsApi(datadogConfig)
-  const toolHandlers = createMetricsToolHandlers(apiInstance)
+  const v1ApiInstance = new v1.MetricsApi(datadogConfig)
+  const v2ApiInstance = new v2.MetricsApi(datadogConfig)
+  const toolHandlers = createMetricsToolHandlers(v1ApiInstance, v2ApiInstance)
 
   // https://docs.datadoghq.com/api/latest/metrics/#query-timeseries-data-across-multiple-products
   describe.concurrent('query_metrics', async () => {
@@ -224,6 +229,374 @@ describe('Metrics Tool', () => {
         await expect(toolHandlers.query_metrics(request)).rejects.toThrow(
           'Time range exceeds allowed limit',
         )
+      })()
+
+      server.close()
+    })
+  })
+
+  // https://docs.datadoghq.com/api/latest/metrics/#search-metrics
+  describe.concurrent('search_metrics', async () => {
+    it('should search for metrics', async () => {
+      const mockHandler = http.get(searchMetricsEndpoint, async () => {
+        return HttpResponse.json({
+          results: {
+            metrics: [
+              'system.cpu.user',
+              'system.cpu.system',
+              'system.cpu.idle',
+              'system.cpu.iowait',
+            ],
+          },
+        })
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('search_metrics', {
+          q: 'system.cpu',
+        })
+        const response = (await toolHandlers.search_metrics(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Metrics search results')
+        expect(response.content[0].text).toContain('system.cpu.user')
+        expect(response.content[0].text).toContain('system.cpu.system')
+      })()
+
+      server.close()
+    })
+
+    it('should handle empty search results', async () => {
+      const mockHandler = http.get(searchMetricsEndpoint, async () => {
+        return HttpResponse.json({
+          results: {
+            metrics: [],
+          },
+        })
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('search_metrics', {
+          q: 'nonexistent.metric.name',
+        })
+        const response = (await toolHandlers.search_metrics(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Metrics search results')
+        expect(response.content[0].text).toContain('metrics":[]')
+      })()
+
+      server.close()
+    })
+
+    it('should handle authentication errors', async () => {
+      const mockHandler = http.get(searchMetricsEndpoint, async () => {
+        return HttpResponse.json(
+          { errors: ['Authentication failed'] },
+          { status: 403 },
+        )
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('search_metrics', {
+          q: 'system.cpu',
+        })
+        await expect(toolHandlers.search_metrics(request)).rejects.toThrow()
+      })()
+
+      server.close()
+    })
+  })
+
+  // https://docs.datadoghq.com/api/latest/metrics/#get-active-metrics-list
+  describe.concurrent('list_active_metrics', async () => {
+    it('should list active metrics', async () => {
+      const mockHandler = http.get(activeMetricsEndpoint, async () => {
+        return HttpResponse.json({
+          metrics: ['system.cpu.user', 'system.mem.used', 'system.disk.total'],
+          from: '1640995000',
+        })
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_active_metrics', {
+          from: 1640995000,
+        })
+        const response = (await toolHandlers.list_active_metrics(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Active metrics')
+        expect(response.content[0].text).toContain('system.cpu.user')
+        expect(response.content[0].text).toContain('system.mem.used')
+      })()
+
+      server.close()
+    })
+
+    it('should list active metrics with host filter', async () => {
+      const mockHandler = http.get(activeMetricsEndpoint, async () => {
+        return HttpResponse.json({
+          metrics: ['system.cpu.user'],
+          from: '1640995000',
+        })
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_active_metrics', {
+          from: 1640995000,
+          host: 'web-01',
+        })
+        const response = (await toolHandlers.list_active_metrics(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Active metrics')
+        expect(response.content[0].text).toContain('system.cpu.user')
+      })()
+
+      server.close()
+    })
+
+    it('should list active metrics with tag filter', async () => {
+      const mockHandler = http.get(activeMetricsEndpoint, async () => {
+        return HttpResponse.json({
+          metrics: ['custom.metric.production'],
+          from: '1640995000',
+        })
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_active_metrics', {
+          from: 1640995000,
+          tagFilter: 'env:production',
+        })
+        const response = (await toolHandlers.list_active_metrics(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Active metrics')
+        expect(response.content[0].text).toContain('custom.metric.production')
+      })()
+
+      server.close()
+    })
+
+    it('should handle authentication errors', async () => {
+      const mockHandler = http.get(activeMetricsEndpoint, async () => {
+        return HttpResponse.json(
+          { errors: ['Authentication failed'] },
+          { status: 403 },
+        )
+      })
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_active_metrics', {
+          from: 1640995000,
+        })
+        await expect(
+          toolHandlers.list_active_metrics(request),
+        ).rejects.toThrow()
+      })()
+
+      server.close()
+    })
+  })
+
+  // https://docs.datadoghq.com/api/latest/metrics/#get-metric-metadata
+  describe.concurrent('get_metric_metadata', async () => {
+    it('should get metric metadata', async () => {
+      const metricName = 'system.cpu.user'
+      const mockHandler = http.get(
+        `${metricMetadataEndpoint}/${metricName}`,
+        async () => {
+          return HttpResponse.json({
+            description: 'Percentage of CPU time spent in user space',
+            short_name: 'cpu user',
+            integration: 'system',
+            statsd_interval: 10,
+            per_unit: null,
+            unit: 'percent',
+            type: 'gauge',
+          })
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_metric_metadata', {
+          metricName,
+        })
+        const response = (await toolHandlers.get_metric_metadata(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Metric metadata')
+        expect(response.content[0].text).toContain('system.cpu.user')
+        expect(response.content[0].text).toContain('Percentage of CPU time')
+        expect(response.content[0].text).toContain('percent')
+        expect(response.content[0].text).toContain('gauge')
+      })()
+
+      server.close()
+    })
+
+    it('should handle not found errors', async () => {
+      const metricName = 'nonexistent.metric'
+      const mockHandler = http.get(
+        `${metricMetadataEndpoint}/${metricName}`,
+        async () => {
+          return HttpResponse.json(
+            { errors: ['Metric not found'] },
+            { status: 404 },
+          )
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_metric_metadata', {
+          metricName,
+        })
+        await expect(toolHandlers.get_metric_metadata(request)).rejects.toThrow(
+          'Metric not found',
+        )
+      })()
+
+      server.close()
+    })
+
+    it('should handle authentication errors', async () => {
+      const metricName = 'system.cpu.user'
+      const mockHandler = http.get(
+        `${metricMetadataEndpoint}/${metricName}`,
+        async () => {
+          return HttpResponse.json(
+            { errors: ['Authentication failed'] },
+            { status: 403 },
+          )
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('get_metric_metadata', {
+          metricName,
+        })
+        await expect(
+          toolHandlers.get_metric_metadata(request),
+        ).rejects.toThrow()
+      })()
+
+      server.close()
+    })
+  })
+
+  // https://docs.datadoghq.com/api/latest/metrics/#list-tags-by-metric-name
+  describe.concurrent('list_tags_by_metric', async () => {
+    it('should list tags for a metric', async () => {
+      const metricName = 'system.cpu.user'
+      const mockHandler = http.get(
+        `${tagsEndpoint}/${metricName}/all-tags`,
+        async () => {
+          return HttpResponse.json({
+            data: {
+              id: 'system.cpu.user',
+              type: 'metrics',
+              attributes: {
+                tags: ['host', 'env', 'service', 'region'],
+              },
+            },
+          })
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_tags_by_metric', {
+          metricName,
+        })
+        const response = (await toolHandlers.list_tags_by_metric(
+          request,
+        )) as unknown as DatadogToolResponse
+
+        expect(response.content[0].text).toContain('Tags for metric')
+        expect(response.content[0].text).toContain('system.cpu.user')
+        expect(response.content[0].text).toContain('host')
+        expect(response.content[0].text).toContain('env')
+        expect(response.content[0].text).toContain('service')
+      })()
+
+      server.close()
+    })
+
+    it('should handle not found errors', async () => {
+      const metricName = 'nonexistent.metric'
+      const mockHandler = http.get(
+        `${tagsEndpoint}/${metricName}/all-tags`,
+        async () => {
+          return HttpResponse.json(
+            { errors: ['Metric not found'] },
+            { status: 404 },
+          )
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_tags_by_metric', {
+          metricName,
+        })
+        await expect(toolHandlers.list_tags_by_metric(request)).rejects.toThrow(
+          'Metric not found',
+        )
+      })()
+
+      server.close()
+    })
+
+    it('should handle authentication errors', async () => {
+      const metricName = 'system.cpu.user'
+      const mockHandler = http.get(
+        `${tagsEndpoint}/${metricName}/all-tags`,
+        async () => {
+          return HttpResponse.json(
+            { errors: ['Authentication failed'] },
+            { status: 403 },
+          )
+        },
+      )
+
+      const server = setupServer(mockHandler)
+
+      await server.boundary(async () => {
+        const request = createMockToolRequest('list_tags_by_metric', {
+          metricName,
+        })
+        await expect(
+          toolHandlers.list_tags_by_metric(request),
+        ).rejects.toThrow()
       })()
 
       server.close()
