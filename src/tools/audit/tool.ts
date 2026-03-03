@@ -29,22 +29,45 @@ export const createAuditToolHandlers = (
       request.params.arguments,
     )
 
-    const response = await apiInstance.listAuditLogs({
-      filterQuery: query,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
-      pageLimit: limit,
-    })
+    const unlimited = limit === 0
+    const allEvents: v2.AuditLogsEvent[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (unlimited || allEvents.length < limit) {
+      const pageLimit = unlimited
+        ? 1000
+        : Math.min(limit - allEvents.length, 1000)
+      const response = await apiInstance.listAuditLogs({
+        filterQuery: query,
+        filterFrom: new Date(from * 1000),
+        filterTo: new Date(to * 1000),
+        pageLimit,
+        ...(cursor ? { pageCursor: cursor } : {}),
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allEvents.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allEvents.length === 0) {
       throw new Error('No audit log data returned')
     }
+
+    const result = unlimited ? allEvents : allEvents.slice(0, limit)
 
     return {
       content: [
         {
           type: 'text',
-          text: `Audit logs: ${JSON.stringify(response.data)}`,
+          text: `Audit logs: ${JSON.stringify(result)}`,
         },
       ],
     }
@@ -55,29 +78,49 @@ export const createAuditToolHandlers = (
       request.params.arguments,
     )
 
-    const response = await apiInstance.searchAuditLogs({
-      body: {
-        filter: {
-          query,
-          from: new Date(from * 1000).toISOString(),
-          to: new Date(to * 1000).toISOString(),
-        },
-        page: {
-          limit,
-        },
-        sort: sort as v2.AuditLogsSort,
-      },
-    })
+    const unlimited = limit === 0
+    const allEvents: v2.AuditLogsEvent[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (unlimited || allEvents.length < limit) {
+      const pageLimit = unlimited
+        ? 1000
+        : Math.min(limit - allEvents.length, 1000)
+      const response = await apiInstance.searchAuditLogs({
+        body: {
+          filter: {
+            query,
+            from: new Date(from * 1000).toISOString(),
+            to: new Date(to * 1000).toISOString(),
+          },
+          page: { limit: pageLimit, ...(cursor ? { cursor } : {}) },
+          sort: sort as v2.AuditLogsSort,
+        },
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allEvents.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allEvents.length === 0) {
       throw new Error('No audit log data returned')
     }
+
+    const result = unlimited ? allEvents : allEvents.slice(0, limit)
 
     return {
       content: [
         {
           type: 'text',
-          text: `Audit logs: ${JSON.stringify(response.data)}`,
+          text: `Audit logs: ${JSON.stringify(result)}`,
         },
       ],
     }

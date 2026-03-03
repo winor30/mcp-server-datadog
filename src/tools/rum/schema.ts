@@ -17,7 +17,9 @@ export const GetRumEventsZodSchema = z.object({
     .number()
     .optional()
     .default(100)
-    .describe('Maximum number of events to return. Default is 100.'),
+    .describe(
+      'Maximum number of events to return. Set 0 for unlimited (auto-paginates all results).',
+    ),
 })
 
 /**

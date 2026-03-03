@@ -13,7 +13,9 @@ export const ListAuditLogsZodSchema = z.object({
     .number()
     .optional()
     .default(25)
-    .describe('Maximum number of audit events to return. Default is 25.'),
+    .describe(
+      'Maximum number of audit events to return. Set 0 for unlimited (auto-paginates all results).',
+    ),
 })
 
 export const SearchAuditLogsZodSchema = z.object({
@@ -29,7 +31,9 @@ export const SearchAuditLogsZodSchema = z.object({
     .number()
     .optional()
     .default(25)
-    .describe('Maximum number of audit events to return. Default is 25.'),
+    .describe(
+      'Maximum number of audit events to return. Set 0 for unlimited (auto-paginates all results).',
+    ),
   sort: z
     .string()
     .optional()
