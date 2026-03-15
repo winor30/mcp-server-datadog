@@ -1,0 +1,63 @@
+{
+  "name": "winor30/mcp-server-datadog",
+  "description": "MCP server for interacting with Datadog API",
+  "accepts": [
+    {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "address": "YOUR_WALLET_ADDRESS"
+    }
+  ],
+  "resources": [
+    {
+      "path": "/list_incidents",
+      "price": "0.01",
+      "description": "Pay-per-call access to list_incidents"
+    },
+    {
+      "path": "/get_incident",
+      "price": "0.01",
+      "description": "Pay-per-call access to get_incident"
+    },
+    {
+      "path": "/get_monitors",
+      "price": "0.01",
+      "description": "Pay-per-call access to get_monitors"
+    },
+    {
+      "path": "/get_logs",
+      "price": "0.01",
+      "description": "Pay-per-call access to get_logs"
+    },
+    {
+      "path": "/list_dashboards",
+      "price": "0.01",
+      "description": "Pay-per-call access to list_dashboards"
+    },
+    {
+      "path": "/get_dashboard",
+      "price": "0.01",
+      "description": "Pay-per-call access to get_dashboard"
+    },
+    {
+      "path": "/query_metrics",
+      "price": "0.01",
+      "description": "Pay-per-call access to query_metrics"
+    },
+    {
+      "path": "/list_traces",
+      "price": "0.01",
+      "description": "Pay-per-call access to list_traces"
+    },
+    {
+      "path": "/list_hosts",
+      "price": "0.01",
+      "description": "Pay-per-call access to list_hosts"
+    },
+    {
+      "path": "/schedule_downtime",
+      "price": "0.01",
+      "description": "Pay-per-call access to schedule_downtime"
+    }
+  ]
+}
