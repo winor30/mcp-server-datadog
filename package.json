@@ -1,6 +1,9 @@
 {
   "name": "@winor30/mcp-server-datadog",
   "version": "1.7.0",
+  "bugs": {
+    "url": "https://github.com/winor30/mcp-server-datadog/issues"
+  },
   "description": "MCP server for interacting with Datadog API",
   "repository": {
     "type": "git",
