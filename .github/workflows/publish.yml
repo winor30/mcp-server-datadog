@@ -1,5 +1,11 @@
+# Publishes to npm via OIDC trusted publishing (no NPM_TOKEN needed).
+# One-time setup on npmjs.com: package -> Settings -> Trusted publishing -> GitHub Actions
+#   owner=winor30, repo=mcp-server-datadog, workflow=publish.yml
+# Release by bumping the version and pushing a tag like `v1.8.0`.
 name: Publish to npm
+
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*.*.*'
@@ -13,16 +19,17 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org/'
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -31,6 +38,4 @@ jobs:
         run: pnpm run build
 
       - name: Publish
-        run: pnpm publish --provenance --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --ignore-scripts --provenance
