@@ -72,25 +72,45 @@ export const createLogsToolHandlers = (
       filter.storageTier = configuredStorageTier
     }
 
-    const response = await apiInstance.listLogs({
-      body: {
-        filter,
-        page: {
-          limit,
-        },
-        sort: '-timestamp',
-      },
-    })
+    const unlimited = limit === 0
+    const allLogs: v2.Log[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (unlimited || allLogs.length < limit) {
+      const pageLimit = unlimited
+        ? 1000
+        : Math.min(limit - allLogs.length, 1000)
+      const response = await apiInstance.listLogs({
+        body: {
+          filter,
+          page: { limit: pageLimit, ...(cursor ? { cursor } : {}) },
+          sort: '-timestamp',
+        },
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allLogs.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allLogs.length === 0) {
       throw new Error('No logs data returned')
     }
+
+    const result = unlimited ? allLogs : allLogs.slice(0, limit)
 
     return {
       content: [
         {
           type: 'text',
-          text: `Logs data: ${JSON.stringify(response.data)}`,
+          text: `Logs data: ${JSON.stringify(result)}`,
         },
       ],
     }
@@ -119,28 +139,43 @@ export const createLogsToolHandlers = (
       filter.storageTier = configuredStorageTier
     }
 
-    const response = await apiInstance.listLogs({
-      body: {
-        filter,
-        page: {
-          limit,
-        },
-        sort: '-timestamp',
-      },
-    })
+    const unlimited = limit === 0
+    const services = new Set<string>()
+    let cursor: string | undefined
+    let totalLogsProcessed = 0
 
-    if (response.data == null) {
-      throw new Error('No logs data returned')
+    while (unlimited || totalLogsProcessed < limit) {
+      const pageLimit = unlimited
+        ? 1000
+        : Math.min(limit - totalLogsProcessed, 1000)
+      const response = await apiInstance.listLogs({
+        body: {
+          filter,
+          page: { limit: pageLimit, ...(cursor ? { cursor } : {}) },
+          sort: '-timestamp',
+        },
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      for (const logEntry of response.data) {
+        if (logEntry.attributes && logEntry.attributes.service) {
+          services.add(logEntry.attributes.service)
+        }
+      }
+
+      totalLogsProcessed += response.data.length
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
     }
 
-    // Extract unique services from logs
-    const services = new Set<string>()
-
-    for (const log of response.data) {
-      // Access service attribute from logs based on the Datadog API structure
-      if (log.attributes && log.attributes.service) {
-        services.add(log.attributes.service)
-      }
+    if (services.size === 0) {
+      throw new Error('No logs data returned')
     }
 
     return {

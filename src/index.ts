@@ -28,6 +28,7 @@ import { ToolHandlers } from './utils/types'
 import { createDatadogConfig } from './utils/datadog'
 import { createDowntimesToolHandlers, DOWNTIMES_TOOLS } from './tools/downtimes'
 import { createRumToolHandlers, RUM_TOOLS } from './tools/rum'
+import { AUDIT_TOOLS, createAuditToolHandlers } from './tools/audit'
 import { v2, v1 } from '@datadog/datadog-api-client'
 
 const server = new Server(
@@ -62,6 +63,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       ...HOSTS_TOOLS,
       ...DOWNTIMES_TOOLS,
       ...RUM_TOOLS,
+      ...AUDIT_TOOLS,
     ],
   }
 })
@@ -87,6 +89,7 @@ const TOOL_HANDLERS: ToolHandlers = {
   ...createHostsToolHandlers(new v1.HostsApi(datadogConfig)),
   ...createDowntimesToolHandlers(new v1.DowntimesApi(datadogConfig)),
   ...createRumToolHandlers(new v2.RUMApi(datadogConfig)),
+  ...createAuditToolHandlers(new v2.AuditApi(datadogConfig)),
 }
 /**
  * Handler for invoking Datadog-related tools in the mcp-server-datadog.

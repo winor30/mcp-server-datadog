@@ -8,7 +8,9 @@ export const GetLogsZodSchema = z.object({
     .number()
     .optional()
     .default(100)
-    .describe('Maximum number of logs to return. Default is 100.'),
+    .describe(
+      'Maximum number of logs to return. Set 0 for unlimited (auto-paginates all results).',
+    ),
 })
 
 /**
@@ -31,5 +33,7 @@ export const GetAllServicesZodSchema = z.object({
     .number()
     .optional()
     .default(1000)
-    .describe('Maximum number of logs to search through. Default is 1000.'),
+    .describe(
+      'Maximum number of logs to search through. Set 0 for unlimited (auto-paginates all results).',
+    ),
 })

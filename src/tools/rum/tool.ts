@@ -74,23 +74,46 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
-    const response = await apiInstance.listRUMEvents({
-      filterQuery: query,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
-      sort: 'timestamp',
-      pageLimit: limit,
-    })
+    const unlimited = limit === 0
+    const allEvents: v2.RUMEvent[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (unlimited || allEvents.length < limit) {
+      const pageLimit = unlimited
+        ? 1000
+        : Math.min(limit - allEvents.length, 1000)
+      const response = await apiInstance.listRUMEvents({
+        filterQuery: query,
+        filterFrom: new Date(from * 1000),
+        filterTo: new Date(to * 1000),
+        sort: 'timestamp',
+        pageLimit,
+        ...(cursor ? { pageCursor: cursor } : {}),
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allEvents.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allEvents.length === 0) {
       throw new Error('No RUM events data returned')
     }
+
+    const result = unlimited ? allEvents : allEvents.slice(0, limit)
 
     return {
       content: [
         {
           type: 'text',
-          text: `RUM events data: ${JSON.stringify(response.data)}`,
+          text: `RUM events data: ${JSON.stringify(result)}`,
         },
       ],
     }
@@ -101,23 +124,40 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
-    // For session counts, we need to use a query to count unique sessions
-    const response = await apiInstance.listRUMEvents({
-      filterQuery: query !== '*' ? query : undefined,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
-      sort: 'timestamp',
-      pageLimit: 2000,
-    })
+    // Paginate to collect all matching events
+    const allEvents: v2.RUMEvent[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (true) {
+      const response = await apiInstance.listRUMEvents({
+        filterQuery: query !== '*' ? query : undefined,
+        filterFrom: new Date(from * 1000),
+        filterTo: new Date(to * 1000),
+        sort: 'timestamp',
+        pageLimit: 1000,
+        ...(cursor ? { pageCursor: cursor } : {}),
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allEvents.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allEvents.length === 0) {
       throw new Error('No RUM events data returned')
     }
 
     // Extract session counts grouped by the specified dimension
     const sessions = new Map<string, Set<string>>()
 
-    for (const event of response.data) {
+    for (const event of allEvents) {
       if (!event.attributes?.attributes) {
         continue
       }
@@ -166,15 +206,33 @@ export const createRumToolHandlers = (
     // Build a query that focuses on view events with performance metrics
     const viewQuery = query !== '*' ? `@type:view ${query}` : '@type:view'
 
-    const response = await apiInstance.listRUMEvents({
-      filterQuery: viewQuery,
-      filterFrom: new Date(from * 1000),
-      filterTo: new Date(to * 1000),
-      sort: 'timestamp',
-      pageLimit: 2000,
-    })
+    // Paginate to collect all matching events
+    const allEvents: v2.RUMEvent[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (true) {
+      const response = await apiInstance.listRUMEvents({
+        filterQuery: viewQuery,
+        filterFrom: new Date(from * 1000),
+        filterTo: new Date(to * 1000),
+        sort: 'timestamp',
+        pageLimit: 1000,
+        ...(cursor ? { pageCursor: cursor } : {}),
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allEvents.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allEvents.length === 0) {
       throw new Error('No RUM events data returned')
     }
 
@@ -187,7 +245,7 @@ export const createRumToolHandlers = (
       {} as Record<string, number[]>,
     )
 
-    for (const event of response.data) {
+    for (const event of allEvents) {
       if (!event.attributes?.attributes) {
         continue
       }
@@ -255,13 +313,30 @@ export const createRumToolHandlers = (
       request.params.arguments,
     )
 
-    const response = await apiInstance.listRUMEvents({
-      filterQuery: `@application.name:${applicationName} @session.id:${sessionId}`,
-      sort: 'timestamp',
-      pageLimit: 2000,
-    })
+    const allEvents: v2.RUMEvent[] = []
+    let cursor: string | undefined
 
-    if (response.data == null) {
+    while (true) {
+      const response = await apiInstance.listRUMEvents({
+        filterQuery: `@application.name:${applicationName} @session.id:${sessionId}`,
+        sort: 'timestamp',
+        pageLimit: 1000,
+        ...(cursor ? { pageCursor: cursor } : {}),
+      })
+
+      if (!response.data || response.data.length === 0) {
+        break
+      }
+
+      allEvents.push(...response.data)
+
+      cursor = response.meta?.page?.after
+      if (!cursor) {
+        break
+      }
+    }
+
+    if (allEvents.length === 0) {
       throw new Error('No RUM events data returned')
     }
 
@@ -269,7 +344,7 @@ export const createRumToolHandlers = (
       content: [
         {
           type: 'text',
-          text: `Waterfall data: ${JSON.stringify(response.data)}`,
+          text: `Waterfall data: ${JSON.stringify(allEvents)}`,
         },
       ],
     }

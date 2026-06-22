@@ -8,7 +8,9 @@ export const ListTracesZodSchema = z.object({
     .number()
     .optional()
     .default(100)
-    .describe('Maximum number of traces to return'),
+    .describe(
+      'Maximum number of spans to return. Set 0 for unlimited (auto-paginates all results).',
+    ),
   sort: z
     .enum(['timestamp', '-timestamp'])
     .optional()

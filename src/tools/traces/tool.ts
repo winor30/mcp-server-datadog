@@ -31,38 +31,64 @@ export const createTracesToolHandlers = (
         operation,
       } = ListTracesZodSchema.parse(request.params.arguments)
 
-      const response = await apiInstance.listSpans({
-        body: {
-          data: {
-            attributes: {
-              filter: {
-                query: [
-                  query,
-                  ...(service ? [`service:${service}`] : []),
-                  ...(operation ? [`operation:${operation}`] : []),
-                ].join(' '),
-                from: new Date(from * 1000).toISOString(),
-                to: new Date(to * 1000).toISOString(),
-              },
-              sort: sort as 'timestamp' | '-timestamp',
-              page: { limit },
-            },
-            type: 'search_request',
-          },
-        },
-      })
+      const filterQuery = [
+        query,
+        ...(service ? [`service:${service}`] : []),
+        ...(operation ? [`operation:${operation}`] : []),
+      ].join(' ')
 
-      if (!response.data) {
+      const filterObj = {
+        query: filterQuery,
+        from: new Date(from * 1000).toISOString(),
+        to: new Date(to * 1000).toISOString(),
+      }
+
+      const unlimited = limit === 0
+      const allSpans: v2.Span[] = []
+      let cursor: string | undefined
+
+      while (unlimited || allSpans.length < limit) {
+        const pageLimit = unlimited
+          ? 1000
+          : Math.min(limit - allSpans.length, 1000)
+        const response = await apiInstance.listSpans({
+          body: {
+            data: {
+              attributes: {
+                filter: filterObj,
+                sort: sort as 'timestamp' | '-timestamp',
+                page: { limit: pageLimit, ...(cursor ? { cursor } : {}) },
+              },
+              type: 'search_request',
+            },
+          },
+        })
+
+        if (!response.data || response.data.length === 0) {
+          break
+        }
+
+        allSpans.push(...response.data)
+
+        cursor = response.meta?.page?.after
+        if (!cursor) {
+          break
+        }
+      }
+
+      if (allSpans.length === 0) {
         throw new Error('No traces data returned')
       }
+
+      const result = unlimited ? allSpans : allSpans.slice(0, limit)
 
       return {
         content: [
           {
             type: 'text',
             text: `Traces: ${JSON.stringify({
-              traces: response.data,
-              count: response.data.length,
+              traces: result,
+              count: result.length,
             })}`,
           },
         ],
