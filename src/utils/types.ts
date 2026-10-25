@@ -1,13 +1,10 @@
-import z from 'zod'
 import {
   Result,
-  CallToolRequestSchema,
+  CallToolRequest,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js'
 
-type ToolHandler = (
-  request: z.infer<typeof CallToolRequestSchema>,
-) => Promise<Result>
+type ToolHandler = (request: CallToolRequest) => Promise<Result>
 
 export type ToolHandlers<T extends string = string> = Record<T, ToolHandler>
 
